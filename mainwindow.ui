@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1093</width>
+    <height>658</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QFileListView" name="listView">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>52</x>
+      <y>130</y>
+      <width>571</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QListView{
+ background-color:rgb(27, 25, 56);
+}</string>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustIgnored</enum>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_main">
+    <property name="geometry">
+     <rect>
+      <x>32</x>
+      <y>60</y>
+      <width>621</width>
+      <height>70</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QGroupBox{
+ border-radius:8px;
+ background-color:rgb(27, 25, 56);
+}</string>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>480</width>
+       <height>69</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit{
+ font-family:&quot;微软雅黑&quot;;
+ font-size:20px;
+ color:#FFFFFF;
+ border-top-left-radius:8px;
+ border-bottom-left-radius:8px;
+ border-color: rgb(60, 70, 255);
+ border-width:2px;
+ background-color:rgb(27, 25, 56);
+ padding-left:10px;
+ padding-right:10px;
+}
+</string>
+     </property>
+     <property name="placeholderText">
+      <string>Search</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>0</y>
+       <width>132</width>
+       <height>69</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+ border-top-right-radius:8px;
+ border-bottom-right-radius:8px;
+ background-color:rgb(27, 25, 56);
+}</string>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <widget class="QPushButton" name="pushButton">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>44</width>
+        <height>69</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+ color:#FFFFFF;
+ background-color:rgb(27, 25, 56);
+ border-color:rgb(255, 255, 255);
+ border-radius:5px;
+ 
+}
+
+QPushButton:hover{
+ border:2px groove #FFFFFF;
+}</string>
+      </property>
+      <property name="text">
+       <string>A</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="geometry">
+       <rect>
+        <x>44</x>
+        <y>0</y>
+        <width>44</width>
+        <height>69</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+ color:#FFFFFF;
+ background-color:rgb(27, 25, 56);
+ border-color:rgb(255, 255, 255);
+ border-radius:5px;
+ 
+}
+
+QPushButton:hover{
+ border:2px groove #FFFFFF;
+}</string>
+      </property>
+      <property name="text">
+       <string>B</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>88</x>
+        <y>0</y>
+        <width>44</width>
+        <height>69</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton{
+ color:#FFFFFF;
+ background-color:rgb(27, 25, 56);
+ border-color:rgb(255, 255, 255);
+ border-radius:5px;
+ 
+}
+
+QPushButton:hover{
+ border:2px groove #FFFFFF;
+}</string>
+      </property>
+      <property name="text">
+       <string>C</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QFileListView</class>
+   <extends>QListView</extends>
+   <header>qfilelistview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
