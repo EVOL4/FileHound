@@ -56,7 +56,7 @@
     <property name="flat">
      <bool>true</bool>
     </property>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QInputLineEdit" name="lineEdit">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -200,6 +200,11 @@ QPushButton:hover{
    <class>QFileListView</class>
    <extends>QListView</extends>
    <header>qfilelistview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QInputLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qinputlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

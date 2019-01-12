@@ -68,6 +68,9 @@
     <Filter Include="Core\util">
       <UniqueIdentifier>{2447dbeb-4087-4b92-9cb6-8c9937836f24}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\QInputLineEdit">
+      <UniqueIdentifier>{43aec693-ee49-46b0-aa53-4ab9e8f1f9c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QWinHotKey\qwinhotkey.cpp">
@@ -88,6 +91,9 @@
     <ClCompile Include="main.cpp">
       <Filter>GUI\MainWindow</Filter>
     </ClCompile>
+    <ClCompile Include="QInputLineEdit.cpp">
+      <Filter>GUI\QInputLineEdit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QWinHotKey\qwinhotkey.h">
@@ -104,6 +110,9 @@
     </QtMoc>
     <QtMoc Include="QFileListView.h">
       <Filter>GUI\QFileListView</Filter>
+    </QtMoc>
+    <QtMoc Include="QInputLineEdit.h">
+      <Filter>GUI\QInputLineEdit</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

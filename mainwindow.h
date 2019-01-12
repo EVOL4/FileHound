@@ -31,9 +31,11 @@ public slots:
 
 private slots:
     void on_lineEdit_textChanged(const QString &input);
+	void arrowKeyTakeover(QKeyEvent *event);
 
 signals:
-	void user_input();
+	void user_input(const QString &input);
+	void empty_input();
 };
 
 #endif // MAINWINDOW_H

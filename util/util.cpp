@@ -57,6 +57,7 @@ void util::SetUpTrayIcon()
 		ret.filePath = path;
 		ret.icon = QtWin::fromHICON(psfi.hIcon).toImage();  //todo:加载图标应交由后台线程解决,这里仅作测试用,
 		ret.fileName = QString::fromWCharArray(psfi.szDisplayName);
+		ret.type = TYPE_DIRECTORY;
 		DestroyIcon(psfi.hIcon);
 	}
 	else if (fileInfo.isFile())
@@ -66,6 +67,7 @@ void util::SetUpTrayIcon()
 		ret.filePath = path;
 		ret.icon = QtWin::fromHICON(psfi.hIcon).toImage();  //todo:加载图标应交由后台线程解决,这里仅作测试用
 		ret.fileName = QString::fromWCharArray(psfi.szDisplayName);
+		ret.type = TYPE_FILE;
 		DestroyIcon(psfi.hIcon);
 	}
 	

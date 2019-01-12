@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton->setFocusPolicy(Qt::NoFocus);
     ui->pushButton_2->setFocusPolicy(Qt::NoFocus);
     ui->pushButton_3->setFocusPolicy(Qt::NoFocus);
+
+
     //安装事件过滤器,要求本QObject覆写bool eventFilter(QObject *watched, QEvent *event)虚函数
     this->installEventFilter(this);
 
@@ -35,9 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     shadowEffect->setBlurRadius(15);
     ui->groupBox_main->setGraphicsEffect(shadowEffect);
 
-	connect(this, SIGNAL(user_input()), ui->listView, SLOT(showResults()));
-
-
+	connect(this, SIGNAL(user_input(const QString &)), ui->listView, SLOT(showResults(const QString &)));
+	connect(this, SIGNAL(empty_input()), ui->listView, SLOT(clearResults()));
+	connect(ui->lineEdit, SIGNAL(arrowKeyPressed(QKeyEvent *)), this, SLOT(arrowKeyTakeover(QKeyEvent *)));
 	tools->SetUpTrayIcon();
 
 }
@@ -81,20 +83,20 @@ void MainWindow::showUp()
 
 void MainWindow::on_lineEdit_textChanged(const QString &input)
 {
-    Q_UNUSED(input);
     if(ui->lineEdit->text().isEmpty()&& !ui->listView->isHidden())
     {
-        ui->listView->reset();
-        ui->listView->hide();
+		ui->listView->hide();
+		emit empty_input();	
     }
     else if(ui->listView->isHidden()&&!ui->lineEdit->text().isEmpty())
     {
-		//todo:在这里暂时仅加入一个文件以作界面测试,后续应修改得更具扩展性
-		emit user_input();
-		
-		
+		emit user_input(input);
     }
+}
 
+void MainWindow::arrowKeyTakeover(QKeyEvent *event)
+{
+	return ui->listView->keyEventForward(event);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

@@ -15,13 +15,20 @@
 
 typedef void(WINAPI *pfnSWITCHTOTHISWINDOW)(HWND,BOOL);
 
+typedef enum FileType
+{
+	TYPE_FILE,
+	TYPE_DIRECTORY,
+	TYPE_HEADER
+}FILE_TYPE;
 
 typedef struct _SearchResult
 {
 	QImage icon;
 	QString fileName;
 	QString filePath;
-	//type file/directory
+	enum FileType type;
+	//type file/directory/·Ö¸ô¼ÆÊý
 }SEARCH_RESULT_ITEM_DATA;
 
 Q_DECLARE_METATYPE(SEARCH_RESULT_ITEM_DATA)

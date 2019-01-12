@@ -15,11 +15,11 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 #include "qfilelistview.h"
+#include "qinputlineedit.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -29,7 +29,7 @@ public:
     QWidget *centralWidget;
     QFileListView *listView;
     QGroupBox *groupBox_main;
-    QLineEdit *lineEdit;
+    QInputLineEdit *lineEdit;
     QGroupBox *groupBox;
     QPushButton *pushButton;
     QPushButton *pushButton_2;
@@ -58,7 +58,7 @@ public:
 " background-color:rgb(27, 25, 56);\n"
 "}"));
         groupBox_main->setFlat(true);
-        lineEdit = new QLineEdit(groupBox_main);
+        lineEdit = new QInputLineEdit(groupBox_main);
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
         lineEdit->setGeometry(QRect(0, 0, 480, 69));
         lineEdit->setStyleSheet(QString::fromUtf8("QLineEdit{\n"

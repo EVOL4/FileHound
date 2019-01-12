@@ -19,11 +19,17 @@ private:
 	QStandardItemModel* m_model;
 	QSearchResultDelegate* m_Delegate;
 
+
 public slots:
-	void showResults();
+	void showResults(const QString & input);
 	void keyEventForward(QKeyEvent *event);
+	void clearResults();
+
 private slots:
 	void indexMouseOver(const QModelIndex &index);
 	void indexMousePressed(const QModelIndex &index);
+
+protected slots:
+	void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 };
 
