@@ -1,6 +1,6 @@
-#include "qwinhotkey.h"
+#include "QWinHotkey.h"
 
-QWinHotKey::QWinHotKey()
+QWinHotkey::QWinHotkey()
 {
     QAbstractEventDispatcher::instance()->installNativeEventFilter(this);
 }
@@ -9,7 +9,7 @@ QWinHotKey::QWinHotKey()
 /*
   解析传入的QKeySequence,然后调用RegisterHotKey()注册热键,若成功,将记录加入链表,并返回其id
  */
-quint32 QWinHotKey::setShortcut(const QKeySequence &shortcut)
+quint32 QWinHotkey::setShortcut(const QKeySequence &shortcut)
 {
     quint32 shortcutId = 0;
 
@@ -37,7 +37,7 @@ quint32 QWinHotKey::setShortcut(const QKeySequence &shortcut)
     return shortcutId;
 }
 
-bool QWinHotKey::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+bool QWinHotkey::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
     Q_UNUSED(eventType);
     Q_UNUSED(result);
@@ -55,7 +55,7 @@ bool QWinHotKey::nativeEventFilter(const QByteArray &eventType, void *message, l
     return bRet;
 }
 
-quint32 QWinHotKey::nativeModifiers(Qt::KeyboardModifiers modifiers)
+quint32 QWinHotkey::nativeModifiers(Qt::KeyboardModifiers modifiers)
 {
     quint32 native = 0;
     if(modifiers&Qt::ShiftModifier)
@@ -70,7 +70,7 @@ quint32 QWinHotKey::nativeModifiers(Qt::KeyboardModifiers modifiers)
     return native;
 }
 
-quint32 QWinHotKey::nativeKeycode(Qt::Key key)
+quint32 QWinHotkey::nativeKeycode(Qt::Key key)
 {
   switch (key)
         {
@@ -236,7 +236,7 @@ quint32 QWinHotKey::nativeKeycode(Qt::Key key)
 
 }
 
-void QWinHotKey::activateShortcut(quint32 nativeKey, quint32 nativeMods)
+void QWinHotkey::activateShortcut(quint32 nativeKey, quint32 nativeMods)
 {
 
     for(QPair<quint32,quint32> i:shortcuts)
@@ -251,7 +251,7 @@ void QWinHotKey::activateShortcut(quint32 nativeKey, quint32 nativeMods)
 
 }
 
-bool QWinHotKey::registerShortcut(quint32 nativeKey, quint32 nativeMods)
+bool QWinHotkey::registerShortcut(quint32 nativeKey, quint32 nativeMods)
 {
     return RegisterHotKey(NULL,nativeKey^nativeMods,nativeMods,nativeKey);
 }

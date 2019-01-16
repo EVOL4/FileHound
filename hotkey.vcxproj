@@ -198,18 +198,24 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChangeJrnl.cpp" />
+    <ClCompile Include="ChangeJrnlDB.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="QFileListView.cpp" />
     <ClCompile Include="QInputLineEdit.cpp" />
     <ClCompile Include="QSearchResultDelegate.cpp" />
-    <ClCompile Include="QWinHotKey\qwinhotkey.cpp" />
+    <ClCompile Include="QWinHotKey\QWinHotkey.cpp" />
     <ClCompile Include="util\util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mainwindow.h">
     </QtMoc>
-    <QtMoc Include="QWinHotKey\qwinhotkey.h">
+    <QtMoc Include="QWinHotKey\QWinHotkey.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\.;.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\debug;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;QT_DEPRECATED_WARNINGS;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;QT_WINEXTRAS_LIB</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\.;.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;QT_WINEXTRAS_LIB</Define>
     </QtMoc>
     <QtMoc Include="util\util.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\.;.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\debug;$(QTDIR)\mkspecs\win32-msvc</IncludePath>
@@ -267,6 +273,8 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\.;.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras</IncludePath>
       <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;QT_WINEXTRAS_LIB</Define>
     </QtMoc>
+    <ClInclude Include="ChangeJrnl.h" />
+    <ClInclude Include="ChangeJrnlDB.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ui_mainwindow.h" />
   </ItemGroup>

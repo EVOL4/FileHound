@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "QWinHotKey/qwinhotkey.h"
+#include "QWinHotKey/QWinHotkey.h"
 
 
 

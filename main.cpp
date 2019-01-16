@@ -1,10 +1,13 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QDesktopWidget>
+#include "ChangeJrnlDB.h"
+
 util*  util::_instance = NULL;
 
 int main(int argc, char *argv[])
 {
+
 
     QApplication a(argc, argv);
     int iRet = 0;

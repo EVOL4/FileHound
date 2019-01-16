@@ -22,10 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->installEventFilter(this);
 
 
-
     //注册快捷键
     //todo:移到util里去,util应该负责管理多个热键
-    QWinHotKey * hotkey = new QWinHotKey();
+    QWinHotkey * hotkey = new QWinHotkey();
     //qApp->installNativeEventFilter(hotkey);  //调试时到这就没了,导致后面无法调试,但明明是能运行的..
     hotkey->setShortcut(tr("ctrl+h")); //目标快捷键组合
     connect(hotkey, SIGNAL(activated()), this, SLOT(showUp()));//连接该信号与我们的槽

@@ -110,8 +110,10 @@ void QFileListView::indexMousePressed(const QModelIndex &index)
 	{
 	case Qt::LeftButton:
 		qDebug() << "left button pressed!";
+		//打开文件
 		break;
 	case Qt::RightButton:
+		//展开新的listview以显示对文件的操作
 		qDebug() << "right button pressed!";
 		break;
 	default:
@@ -122,7 +124,7 @@ void QFileListView::indexMousePressed(const QModelIndex &index)
 void QFileListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
 	SEARCH_RESULT_ITEM_DATA itemData = current.data(Qt::UserRole + 1).value<SEARCH_RESULT_ITEM_DATA>();
-	if (itemData.type == TYPE_HEADER)
+	if (itemData.type == TYPE_HEADER)  //这一行是表头,不希望被选中
 	{
 		int nextRow = current.row() * 2 - previous.row();
 		this->selectionModel()->setCurrentIndex(m_model->index(nextRow, 0), QItemSelectionModel::SelectCurrent);

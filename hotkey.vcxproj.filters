@@ -71,11 +71,14 @@
     <Filter Include="GUI\QInputLineEdit">
       <UniqueIdentifier>{43aec693-ee49-46b0-aa53-4ab9e8f1f9c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\ChangeJrnl">
+      <UniqueIdentifier>{e3f8de99-08d7-47c8-a357-0c7f01240882}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\ChangeJrnl\Volume">
+      <UniqueIdentifier>{77ea709a-d87d-4fd6-969f-b078a8ff683c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="QWinHotKey\qwinhotkey.cpp">
-      <Filter>Core\QWinHotkey</Filter>
-    </ClCompile>
     <ClCompile Include="util\util.cpp">
       <Filter>Core\util</Filter>
     </ClCompile>
@@ -94,11 +97,17 @@
     <ClCompile Include="QInputLineEdit.cpp">
       <Filter>GUI\QInputLineEdit</Filter>
     </ClCompile>
+    <ClCompile Include="ChangeJrnlDB.cpp">
+      <Filter>Core\ChangeJrnl</Filter>
+    </ClCompile>
+    <ClCompile Include="ChangeJrnl.cpp">
+      <Filter>Core\ChangeJrnl\Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="QWinHotKey\QWinHotkey.cpp">
+      <Filter>Core\QWinHotkey</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="QWinHotKey\qwinhotkey.h">
-      <Filter>Core\QWinHotkey</Filter>
-    </QtMoc>
     <QtMoc Include="util\util.h">
       <Filter>Core\util</Filter>
     </QtMoc>
@@ -113,6 +122,9 @@
     </QtMoc>
     <QtMoc Include="QInputLineEdit.h">
       <Filter>GUI\QInputLineEdit</Filter>
+    </QtMoc>
+    <QtMoc Include="QWinHotKey\QWinHotkey.h">
+      <Filter>Core\QWinHotkey</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +162,12 @@
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangeJrnlDB.h">
+      <Filter>Core\ChangeJrnl</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangeJrnl.h">
+      <Filter>Core\ChangeJrnl\Volume</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

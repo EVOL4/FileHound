@@ -7,11 +7,11 @@
 #include <QList>
 #include "util/util.h"
 
-class QWinHotKey:public QObject,public QAbstractNativeEventFilter  //欲使用connect()来处理信号,必须继承QObject,而且要放在最前面
+class QWinHotkey:public QObject,public QAbstractNativeEventFilter  //欲使用connect()来处理信号,必须继承QObject,而且要放在最前面
 {
     Q_OBJECT
 public:
-    QWinHotKey();
+    QWinHotkey();
 
     quint32 setShortcut(const QKeySequence &shortcut); // 为了保持与QAction->setShortcut()风格一致,但返回值为一个热键的id
     //bool  unsetShortcut(const quint32 shortcutId); //接受目标热键id,用于注销目标热键
