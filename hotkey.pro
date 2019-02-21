@@ -48,4 +48,4 @@ DISTFILES += \
     src/magnifyingglass_72px_1132327_easyicon.net.png
 
 RESOURCES += \
-    Resouces/systrayicon.qrc
+    Resouces/resouces.qrc

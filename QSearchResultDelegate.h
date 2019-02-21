@@ -1,5 +1,30 @@
 #pragma once
 #include<QStyledItemDelegate>
+#include <windows.h>
+namespace FH
+{
+	typedef enum ViewMode
+	{
+		MODE_FILES,
+		MODE_ACTIONS
+	};
+
+	typedef struct FHMENUITEMINFO
+	{
+		HBITMAP hBitmap;
+		HMENU hSubMenu;
+		UINT uItemID;
+		WCHAR* lpCommandString;
+	}MenuItemInfo;
+
+	
+
+}
+
+void CleanUpItemInfo(FH::MenuItemInfo& m);
+
+
+Q_DECLARE_METATYPE(FH::MenuItemInfo)
 
 class QSearchResultDelegate : public QStyledItemDelegate
 {
@@ -15,6 +40,14 @@ public:
 	//重载sizeHint,用于控制item的大小
 	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
+
+	void SwitchMode(enum FH::ViewMode);
+
+private:
+	enum FH::ViewMode m_mode;
+
+	void paint_files(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	void paint_actions(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 };
 

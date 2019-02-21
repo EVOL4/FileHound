@@ -14,19 +14,6 @@
       <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
-      <Extensions>qrc;*</Extensions>
-      <ParseFiles>false</ParseFiles>
-    </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Distribution Files">
       <UniqueIdentifier>{B83CAF91-C7BF-462F-B76C-EA11631F866C}</UniqueIdentifier>
       <Extensions>*</Extensions>
@@ -71,11 +58,23 @@
     <Filter Include="GUI\QInputLineEdit">
       <UniqueIdentifier>{43aec693-ee49-46b0-aa53-4ab9e8f1f9c2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\ChangeJrnl">
+    <Filter Include="Core\DataBase">
       <UniqueIdentifier>{e3f8de99-08d7-47c8-a357-0c7f01240882}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\ChangeJrnl\Volume">
+    <Filter Include="Core\ChangeJrnl">
       <UniqueIdentifier>{77ea709a-d87d-4fd6-969f-b078a8ff683c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="infrastructure">
+      <UniqueIdentifier>{a03268fb-ce45-4eb2-a1b8-618047257774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="infrastructure\FuzzySearch">
+      <UniqueIdentifier>{5c27571d-6d3b-423a-b052-76f882264667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\QActionListView">
+      <UniqueIdentifier>{62077469-e206-44d5-99e4-9d8d6bcba28a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Pinyin">
+      <UniqueIdentifier>{7d1f0658-e9c7-4db3-b0d3-4477cb265d1b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,14 +96,23 @@
     <ClCompile Include="QInputLineEdit.cpp">
       <Filter>GUI\QInputLineEdit</Filter>
     </ClCompile>
-    <ClCompile Include="ChangeJrnlDB.cpp">
-      <Filter>Core\ChangeJrnl</Filter>
-    </ClCompile>
     <ClCompile Include="ChangeJrnl.cpp">
-      <Filter>Core\ChangeJrnl\Volume</Filter>
+      <Filter>Core\ChangeJrnl</Filter>
     </ClCompile>
     <ClCompile Include="QWinHotKey\QWinHotkey.cpp">
       <Filter>Core\QWinHotkey</Filter>
+    </ClCompile>
+    <ClCompile Include="MyDB.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="QActionListView.cpp">
+      <Filter>GUI\QActionListView</Filter>
+    </ClCompile>
+    <ClCompile Include="Pinyin.cpp">
+      <Filter>Core\Pinyin</Filter>
+    </ClCompile>
+    <ClCompile Include="match.cpp">
+      <Filter>infrastructure\FuzzySearch</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +133,9 @@
     </QtMoc>
     <QtMoc Include="QWinHotKey\QWinHotkey.h">
       <Filter>Core\QWinHotkey</Filter>
+    </QtMoc>
+    <QtMoc Include="QActionListView.h">
+      <Filter>GUI\QActionListView</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -150,9 +161,9 @@
     <None Include="Resouces\main.png">
       <Filter>GUI\Resource Files</Filter>
     </None>
-    <QtRcc Include="Resouces\systrayicon.qrc">
+    <None Include="Resouces\listview.qss">
       <Filter>GUI\Resource Files</Filter>
-    </QtRcc>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\magnifyingglass_72px_1132327_easyicon.net.png">
@@ -163,16 +174,30 @@
     <ClInclude Include="resource.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChangeJrnlDB.h">
+    <ClInclude Include="ChangeJrnl.h">
       <Filter>Core\ChangeJrnl</Filter>
     </ClInclude>
-    <ClInclude Include="ChangeJrnl.h">
-      <Filter>Core\ChangeJrnl\Volume</Filter>
+    <ClInclude Include="MyDB.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="match.h">
+      <Filter>infrastructure\FuzzySearch</Filter>
+    </ClInclude>
+    <ClInclude Include="Pinyin.h">
+      <Filter>Core\Pinyin</Filter>
+    </ClInclude>
+    <ClInclude Include="bonus.h">
+      <Filter>infrastructure\FuzzySearch</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="hotkey.rc">
       <Filter>GUI</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Resouces\resouces.qrc">
+      <Filter>GUI\Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

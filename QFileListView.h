@@ -5,6 +5,16 @@
 #include <QStandardItemModel>
 #include "util/util.h"
 #include "QSearchResultDelegate.h"
+#include "QActionListView.h"
+
+#include <shldisp.h>
+#include <ExDisp.h>
+#include <ShObjIdl.h>
+#include <ShlGuid.h>
+#include <Shlobj.h>
+#include <shlwapi.h>
+#include <vector>
+#include <stack>
 
 class QFileListView :public QListView
 {
@@ -13,12 +23,41 @@ class QFileListView :public QListView
 
 public:
 	explicit QFileListView(QWidget *parent=0);
+
+	static QFileListView* currentList;
+
+
 	~QFileListView();
 
-private:
-	QStandardItemModel* m_model;
-	QSearchResultDelegate* m_Delegate;
 
+
+private:
+	QStandardItemModel* m_filesModel;
+	QStandardItemModel* m_actionsModel;
+	QStandardItemModel* m_currentModel;
+	QSearchResultDelegate* m_Delegate;
+	uint m_viewMode;
+	uint m_depth;
+
+	OleInitializer *m_ole;
+	QModelIndex m_prevIndex;
+	HMENU m_hMenu;
+	IContextMenu * m_cm;
+	IContextMenu2* m_cm2;
+	IContextMenu3* m_cm3;
+
+	std::stack<HMENU>m_CollapseStack;
+
+
+	void SwitchMode(enum FH::ViewMode mode);
+	void Expand();
+	void Collapse();
+
+	void ClearActionString();
+
+	bool QueryContextMenu(QModelIndex& index);
+	void ParseMenu(std::vector<FH::MenuItemInfo>&actionList,HMENU hTargetMenu);
+	void ShowMenu(HMENU hTargetMenu);
 
 public slots:
 	void showResults(const QString & input);
@@ -31,7 +70,10 @@ private slots:
 
 protected :
 	void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
+	
 	//bool nativeEvent(const QByteArray &eventType, void *message, long *result) override; https://blog.csdn.net/xiezhongyuan07/article/details/83585100 
 	//在listview中接收WM_JOURNALCHANGED还是在主窗口中接收?想了想让主窗口接收比较好
 };
 
+#define OFFSET_FIRST_COMMAND 0x0
+#define OFFSET_LAST_COMMAND 0x7FF

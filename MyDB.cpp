@@ -1,15 +1,15 @@
 #include <tchar.h>
-#include "ChangeJrnlDB.h"
+#include "MyDB.h"
 
 
 
 
-ChangeJrnlDB::ChangeJrnlDB()
+MyDB::MyDB()
 {
 }
 
 
-ChangeJrnlDB::~ChangeJrnlDB()
+MyDB::~MyDB()
 {
 	for (auto i:m_vChangeJrnls)
 	{
@@ -18,7 +18,7 @@ ChangeJrnlDB::~ChangeJrnlDB()
 	}
 }
 
-DWORD ChangeJrnlDB::initVolumes()
+DWORD MyDB::initVolumes()
 {
 	DWORD dwRet = 0;
 	DWORD bitMap = GetLogicalDrives();

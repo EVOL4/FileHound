@@ -12,20 +12,24 @@ MainWindow::MainWindow(QWidget *parent) :
     tools(util::getInstance())
 {
     ui->setupUi(this);
+
+	m_lineEdit = ui->lineEdit;
+	m_listView = ui->listView;
+
+
     //去除除文本输入以外所有控件的focus
     ui->pushButton->setFocusPolicy(Qt::NoFocus);
     ui->pushButton_2->setFocusPolicy(Qt::NoFocus);
     ui->pushButton_3->setFocusPolicy(Qt::NoFocus);
 
+	m_listView->hide();
 
     //安装事件过滤器,要求本QObject覆写bool eventFilter(QObject *watched, QEvent *event)虚函数
     this->installEventFilter(this);
 
-
     //注册快捷键
     //todo:移到util里去,util应该负责管理多个热键
     QWinHotkey * hotkey = new QWinHotkey();
-    //qApp->installNativeEventFilter(hotkey);  //调试时到这就没了,导致后面无法调试,但明明是能运行的..
     hotkey->setShortcut(tr("ctrl+h")); //目标快捷键组合
     connect(hotkey, SIGNAL(activated()), this, SLOT(showUp()));//连接该信号与我们的槽
 
@@ -40,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(this, SIGNAL(empty_input()), ui->listView, SLOT(clearResults()));
 	connect(ui->lineEdit, SIGNAL(arrowKeyPressed(QKeyEvent *)), this, SLOT(arrowKeyTakeover(QKeyEvent *)));
 	tools->SetUpTrayIcon();
+
+
 
 }
 
@@ -56,10 +62,10 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
     {
         if(QApplication::activeWindow()!=this&&!this->isHidden())
         {
-            ui->lineEdit->clear();
+            m_lineEdit->clear();
              //在输入框有字的情况下,程序隐藏又出现时,listview会留下残影,猜想是on_lineEdit_textChanged没来得及执行主界面就隐藏了,这样可以解决
             tools->sleep(50); //ps:调用windows的Sleep在调试外好像没作用
-            this->hide(); //qt貌似不支持全局热键,这种方法注册的快捷键在窗口没激活时是不起效果的,自己调用windows的api解决吧
+            //this->hide(); //qt貌似不支持全局热键,这种方法注册的快捷键在窗口没激活时是不起效果的,自己调用windows的api解决吧
         }
         else if(QApplication::activeWindow()==this)
         {
@@ -72,7 +78,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
         }
     }
-    return QWidget::eventFilter(watched,event);
+	return QWidget::eventFilter(watched, event); 
 }
 
 void MainWindow::showUp()
@@ -82,12 +88,13 @@ void MainWindow::showUp()
 
 void MainWindow::on_lineEdit_textChanged(const QString &input)
 {
-    if(ui->lineEdit->text().isEmpty()&& !ui->listView->isHidden())
+	HWND hwnd = (HWND)this->winId();
+
+    if(m_lineEdit->text().isEmpty())
     {
-		ui->listView->hide();
-		emit empty_input();	
+		//emit empty_input();	//为了避免堵塞界面线程,像这种可能花费时间的操作,统统发送信号,以异步方式处理
     }
-    else if(ui->listView->isHidden()&&!ui->lineEdit->text().isEmpty())
+    else if(!m_lineEdit->text().isEmpty())
     {
 		emit user_input(input);
     }
@@ -95,11 +102,11 @@ void MainWindow::on_lineEdit_textChanged(const QString &input)
 
 void MainWindow::arrowKeyTakeover(QKeyEvent *event)
 {
-	return ui->listView->keyEventForward(event);
+	return m_listView->keyEventForward(event);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-	return ui->listView->keyEventForward(event);
+	return m_listView->keyEventForward(event);
 }
 

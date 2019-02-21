@@ -1,6 +1,8 @@
 #include "util.h"
 #include <qfile.h>
 
+
+
 void util::sleep(int ElapsedTime)
 {
     if(ElapsedTime<0)
@@ -25,7 +27,7 @@ util *util::getInstance()
 void util::SetUpTrayIcon()
 {
 	//创建托盘图标,添加资源后还得qmake一下,麻烦
-	QIcon icon = QIcon(":/icon/main_icon/main.png");
+    QIcon icon = QIcon(":/main.png");
 	//todo:记得程序结束时回收内存,以及实现菜单的定制
 	_GlobalSysTrayIcon = new QSystemTrayIcon(this);
 	_GlobalSysTrayIcon->setIcon(icon);
@@ -56,9 +58,9 @@ void util::SetUpTrayIcon()
 		SHGetFileInfo(path.toStdWString().c_str(), FILE_ATTRIBUTE_DIRECTORY, &psfi, sizeof(SHFILEINFO), SHGFI_USEFILEATTRIBUTES | SHGFI_ICON | SHGFI_DISPLAYNAME);
 		ret.filePath = path;
 		ret.icon = QtWin::fromHICON(psfi.hIcon).toImage();  //todo:加载图标应交由后台线程解决,这里仅作测试用,
-		ret.fileName = QString::fromWCharArray(psfi.szDisplayName);
+		ret.fileName = QString::fromWCharArray(psfi.szDisplayName); //由于SHFILEINFO.szDisplayName里是一个数组而不是指针,所以不用我们去释放内存
 		ret.type = TYPE_DIRECTORY;
-		DestroyIcon(psfi.hIcon);
+		DestroyIcon(psfi.hIcon);  //需要手动释放图标内存
 	}
 	else if (fileInfo.isFile())
 	{

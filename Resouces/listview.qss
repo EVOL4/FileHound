@@ -1,3 +1,8 @@
+
+QListView{
+ background-color:rgb(27, 25, 56);
+}
+
 QScrollBar:vertical {
     border: none;
     background: transparent;

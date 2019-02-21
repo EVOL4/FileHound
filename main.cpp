@@ -1,32 +1,92 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <QDesktopWidget>
-#include "ChangeJrnlDB.h"
+#include <QtSql/QSqlDatabase>
+#include <QDebug>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 
+#include <Shldisp.h>
+
+#include "match.h"
+#include "MyDB.h"
+#include "ChangeJrnl.h"
+#include "Pinyin.h"
 util*  util::_instance = NULL;
+
 
 int main(int argc, char *argv[])
 {
+// 	WCHAR sub[] = { L"w" };
+// 	WCHAR sub2[] = { L"wcm" };
+// 	WCHAR sub3[] = { L"Wincmm" };
+// 	WCHAR m[] = { L"WinContextMenu-master" };
+// 
+// 	WCHAR* a = sub;
+// 	WCHAR* b = m;
+//  	BOOL bRet = has_match(a, b);
+// 	size_t len = wcslen(m);
+// 	size_t * positions = (size_t *)malloc(len * sizeof(size_t));
+// 	ZeroMemory(positions, len * sizeof(size_t));
+// 	score_t score = match_positions(a, b, positions);
+// 	score = match_positions(sub2, b, positions);
+// 	score = match_positions(sub3, b, positions);
+// 
+// 
+// 	for (size_t i=0;i<len;i++)
+// 	{
+// 		size_t x = positions[i];
+// 		size_t y = x;
+// 	}
 
+	
+	WCHAR xx[] = { L"z囧hh de" };
+	WCHAR xxx[] = { L"囧d" };
+	size_t xxxx[_MAX_PATH] = { 0 };
+	//[0x00000000] = { Filename = L"$TxfLog.blf" Path = L"\\$RmMetadata\\$TxfLog\\" Filter = 0xe00000d000884862 ... }
 
-    QApplication a(argc, argv);
-    int iRet = 0;
-    QWidget* empty_parent = new QWidget;
-    MainWindow* w = new MainWindow(empty_parent); //将父窗口设置为empty_parent,这样在任务栏就不会出现图标
+	DWORD fiat = GetFileAttributes(L"C:\\");
+	int dd = GetLastError();
+	score_t sc = match_positions(xxx, xx, xxxx);
+ 	CDriveIndex* c = CreateIndex('H');
 
-    //在最后一个窗口关闭的时候不关闭应用程序,可以调用 a.quit()来正确退出
-    a.setQuitOnLastWindowClosed(false);
-    //去掉背景和边框
-    w->setWindowFlag(Qt::FramelessWindowHint,true);
-    w->setWindowFlag(Qt::NoDropShadowWindowHint,true);
-    w->setAttribute(Qt::WA_TranslucentBackground);
-    w->show();
-    w->move ((QApplication::desktop()->width() - w->width())/2,(QApplication::desktop()->height() - w->height())/1.4);
+	wstring query(L"t");
 
-    iRet = a.exec();
+	vector<SearchResultFile> results;
 
-    delete empty_parent;  //当父窗口销毁时,子窗口也会被正确销毁
-    return iRet;
+	clock_t startTime, endTime;
+    startTime = clock();//计时开始
+	c->Find(&query, NULL, &results, TRUE, -1);
+	endTime = clock();//计时结束
+	WCHAR time[MAX_PATH] = { 0 };
+	int dTime = (int)(endTime - startTime) / CLOCKS_PER_SEC;
+	wsprintf(time, L"Time is %d",dTime);
+	MessageBox(NULL, time, time, MB_OK);
+
+	
+
+ 	delete c;
+
+	int x = 0;
+
+//     QApplication a(argc, argv);
+//     int iRet = 0;
+//     QWidget* empty_parent = new QWidget;
+//     MainWindow* w = new MainWindow(empty_parent); //将父窗口设置为empty_parent,这样在任务栏就不会出现图标
+// 
+//     //在最后一个窗口关闭的时候不关闭应用程序,可以调用 a.quit()来正确退出
+//     a.setQuitOnLastWindowClosed(false);
+//     //去掉背景和边框
+//     w->setWindowFlag(Qt::FramelessWindowHint,true);
+//     w->setWindowFlag(Qt::NoDropShadowWindowHint,true);
+//     w->setAttribute(Qt::WA_TranslucentBackground);
+//     w->show();
+//     w->move ((QApplication::desktop()->width() - w->width())/2,(QApplication::desktop()->height() - w->height())/1.4);
+// 
+//     iRet = a.exec();
+// 
+//     delete empty_parent;  //当父窗口销毁时,子窗口也会被正确销毁
+//     return iRet;
    // qApp为指向a的全局指针
 }
 

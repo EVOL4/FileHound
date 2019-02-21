@@ -63,3 +63,7 @@ private slots:
 
 
 #endif // UTIL_H
+
+
+#define DELETE_IF_NOT_NULL(o) if (o!=NULL) { delete o; o=NULL;}
+

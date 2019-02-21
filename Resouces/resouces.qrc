@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>listview.qss</file>
+        <file>magnifyingglass.ico</file>
+        <file>main.png</file>
+    </qresource>
+</RCC>
