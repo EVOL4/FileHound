@@ -114,6 +114,36 @@
     <ClCompile Include="match.cpp">
       <Filter>infrastructure\FuzzySearch</Filter>
     </ClCompile>
+    <ClCompile Include="KC\kccompare.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kccompress.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcdb.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcfile.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kchashdb.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcmap.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcplantdb.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcregex.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcthread.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="KC\kcutil.cpp">
+      <Filter>Core\DataBase</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="util\util.h">
@@ -188,6 +218,42 @@
     </ClInclude>
     <ClInclude Include="bonus.h">
       <Filter>infrastructure\FuzzySearch</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kccommon.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kccompare.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kccompress.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcdb.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcfile.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kchashdb.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcmap.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcplantdb.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcregex.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcthread.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\kcutil.h">
+      <Filter>Core\DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="KC\myconf.h">
+      <Filter>Core\DataBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

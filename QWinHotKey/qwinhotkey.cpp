@@ -1,4 +1,5 @@
 #include "QWinHotkey.h"
+#include <cstring>
 
 QWinHotkey::QWinHotkey()
 {

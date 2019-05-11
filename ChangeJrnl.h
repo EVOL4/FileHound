@@ -18,67 +18,16 @@ using namespace std;
 
 #define QUALITY_OK 0.6
 
-struct HashMapEntry
-{
-	DWORDLONG ParentFRN;
-	unsigned int iOffset;
-};
 
-struct MAP_ENTRY
+
+struct IndexEntry
 {
 	DWORDLONG ParentFRN;
 	DWORDLONG Filter;
-};
+	wstring szName;  //不能用类!! 
+};  
 
-struct USNEntry
-{
-	DWORDLONG ParentIndex;
-	wstring Name;
-	USNEntry(wstring aName, DWORDLONG aParentIndex)
-	{
-		Name = aName;
-		ParentIndex = aParentIndex;
-	}
-	USNEntry()
-	{
-		ParentIndex = 0;
-		Name = wstring();
-	}
-};
 
-struct IndexedFile
-{
-	DWORDLONG Index;
-	//DWORDLONG ParentIndex;
-	DWORDLONG Filter;
-	bool operator<(const IndexedFile& i)
-	{
-		return Index < i.Index;
-	}
-	IndexedFile()
-	{
-		Index = 0;
-		Filter = 0;
-	}
-};
-
-struct IndexedDirectory
-{
-	DWORDLONG Index;
-	//DWORDLONG ParentIndex;
-	DWORDLONG Filter;
-	unsigned int nFiles; //该目录下的文件数
-	bool operator<(const IndexedDirectory& i)
-	{
-		return Index < i.Index;
-	}
-	IndexedDirectory()
-	{
-		Index = 0;
-		Filter = 0;
-		nFiles = 0;
-	}
-};
 
 struct SearchResultFile
 {
@@ -156,18 +105,15 @@ public /*Functions*/:
 	
 protected /*Functions*/:
 	DWORDLONG MakeFilter(wstring* szName);
-	BOOL AddDir(DWORDLONG Index, wstring *szName, DWORDLONG ParentIndex, DWORDLONG Filter = 0ui64);
 	BOOL Add(DWORDLONG Index, wstring *szName, DWORDLONG ParentIndex, DWORDLONG Filter = 0ui64);
-	DWORDLONG Name2FRN(wstring * strPath);
-	USNEntry FRN2Name(DWORDLONG frn);
-	void FRN2Path(DWORDLONG frn, wstring* Path);
-	INT64 DirOffsetByIndex(DWORDLONG FRNPath);
+	DWORDLONG Name2FRN(wstring& strPath);
+
+
 
 	void FindInPreviousResults(wstring &strQuery, const WCHAR* &szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<SearchResultFile> &rgsrfResults, unsigned int  iOffset, int maxResults, int &nResults);
-	void FindRecursively(wstring strQuery, const WCHAR* szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<SearchResultFile> rgsrfResults, int maxResults, int nResults);
+	
 
-	template<class T>
-	void FindInJournal(wstring & strQuery, const WCHAR *& szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<T>& rgJournalIndex, vector<SearchResultFile>& rgsrfResults, unsigned int iOffset, int maxResults, int & nResults);
+	void FindInJournal(wstring & strQuery, const WCHAR *& szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<SearchResultFile>& rgsrfResults,int maxResults, int & nResults);
 
 
 
@@ -199,17 +145,15 @@ private:
 
 	//数据库成员
 	DWORDLONG m_dlRootIndex;	//根目录的FRN
-	vector<IndexedFile> rgFiles; //文件数据库
-	vector<IndexedDirectory> rgDirectories; //文件夹数据库
+
 	SearchResult m_LastResult; //上一次搜索的结果,由于会出现输入数据逐渐变详细的清况,所以可以在上一次的搜索结果中继续搜索
 
 
-// 	unordered_map<DWORDLONG, MAP_ENTRY> mapIndexToOffset;
-// 	vector<wstring> rgszNames
+ 	unordered_map<DWORDLONG , DWORDLONG> mapIndexToOffset;
+	vector<IndexEntry> rgIndexes;
 
-	
+	void GetPath(IndexEntry& i, wstring & szFullPath);
 
 };
-
 
 CDriveIndex* _stdcall CreateIndex(WCHAR cDrive);

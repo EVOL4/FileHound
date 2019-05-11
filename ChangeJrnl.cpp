@@ -14,6 +14,7 @@ CDriveIndex* _stdcall CreateIndex(WCHAR cDrive)
 
 CDriveIndex::CDriveIndex()
 {
+
 	m_tDriveLetter = 'A';
 	m_hVolume = INVALID_HANDLE_VALUE;
 
@@ -78,6 +79,7 @@ BOOL CDriveIndex::Init(_TCHAR cDriveLetter, DWORD dwBufLength)
 
 		//获得volume的句柄,注意这将要求当前进程有较高的权限
 		m_hVolume = OpenVolume(cDriveLetter, GENERIC_READ | GENERIC_WRITE, FALSE);
+		int aa = GetLastError();
 		if (INVALID_HANDLE_VALUE == m_hVolume)  __leave;
 
 		//获得用于异步IO的盘符句柄,将用于后面(异步地)处理新的USN_RECORD
@@ -195,28 +197,50 @@ void CDriveIndex::FindInPreviousResults(wstring &strQuery, const WCHAR* &szQuery
 {
 }
 
-template <class T>
-void CDriveIndex::FindInJournal(wstring &strQuery, const WCHAR* &szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<T> &rgJournalIndex, vector<SearchResultFile> &rgsrfResults, unsigned int iOffset, int maxResults, int &nResults)
+void CDriveIndex::GetPath(IndexEntry& i , wstring & szFullPath)
 {
-	for (unsigned int j = 0; j != rgJournalIndex.size(); j++)
+	if (szFullPath.capacity() < _MAX_PATH)
+	{
+		szFullPath.reserve(_MAX_PATH);
+	}
+
+	szFullPath = wstring(i.szName);
+	DWORDLONG Index = i.ParentFRN;
+
+	do {
+		DWORDLONG offset;
+		if (mapIndexToOffset.find(Index) == mapIndexToOffset.end())
+			break;
+		offset = mapIndexToOffset[Index];
+		szFullPath = wstring(rgIndexes[offset].szName) + ((szFullPath.length() != 0) ? TEXT("\\") : TEXT("")) + szFullPath;
+		Index = rgIndexes[offset].ParentFRN;
+	} while (Index != 0);
+}
+
+
+void CDriveIndex::FindInJournal(wstring &strQuery, const WCHAR* &szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<SearchResultFile> &rgsrfResults, int maxResults, int &nResults)
+{
+
+	for (auto j : rgIndexes)
 	{
 		SearchResultFile result;
-		IndexedFile* i = (IndexedFile*)&rgJournalIndex[j];
-		DWORDLONG Length = (i->Filter & 0xE000000000000000ui64) >> 61ui64; //61`63位存储着长度,长度最高为8个字符
-		DWORDLONG Filter = i->Filter & 0x1FFFFFFFFFFFFFFFui64; //去除长度位
+		DWORDLONG Length = (j.Filter & 0xE000000000000000ui64) >> 61ui64;
+		DWORDLONG Filter = j.Filter & 0x1FFFFFFFFFFFFFFFui64; //去除长度位
 
 		if (!((Filter & QueryFilter) == QueryFilter && QueryLength <= Length))
 			continue;
-		continue;
-		
 
-		USNEntry entry = FRN2Name(i->Index);
 		score_t MatchQuality;
-		wstring szFileNameLower(entry.Name);
-		transform(szFileNameLower.begin(), szFileNameLower.end(), szFileNameLower.begin(), pinyinFirstLetter);
+		wstring szFileName(j.szName);
+		/*
+		if strQuery里有中文
+			szFileName不转英文
+		else
+		*/
+		transform(szFileName.begin(), szFileName.end(), szFileName.begin(), pinyinFirstLetter);  
 
-		MatchQuality = match_positions(strQuery.c_str(), szFileNameLower.c_str(), result.MatchPos);   //模糊匹配占的时间很少 
-		continue;
+		MatchQuality = match_positions(strQuery.c_str(), szFileName.c_str(), result.MatchPos);   //模糊匹配占的时间很少 
+
 		if (MatchQuality > QUALITY_OK)
 		{
 			nResults++;
@@ -226,8 +250,8 @@ void CDriveIndex::FindInJournal(wstring &strQuery, const WCHAR* &szQueryLower, D
 				nResults = -1;
 				break;
 			}
-			result.Filename = entry.Name;
-			FRN2Path(i->Index, &result.Path);  //10s
+			result.Filename = j.szName;
+			GetPath(j, result.Path);
 			BOOL bFound = TRUE;
 
 			if (strQueryPath != NULL)
@@ -246,12 +270,13 @@ void CDriveIndex::FindInJournal(wstring &strQuery, const WCHAR* &szQueryLower, D
 				WCHAR szExt[_MAX_EXT];
 				_wsplitpath(result.Path.c_str(), szDrive, szPath, szName, szExt);
 				result.Path = wstring(szDrive) + wstring(szPath);
-				result.Filter = i->Filter;
+				result.Filter = j.Filter;
 				result.MatchQuality = MatchQuality;
 				rgsrfResults.insert(rgsrfResults.end(), result);
 			}
 		}
 	}
+	
 }
 
 int CDriveIndex::Find(wstring *strQuery, wstring *strQueryPath, vector<SearchResultFile> *rgsrfResults, BOOL bSort, int maxResults)
@@ -352,26 +377,12 @@ int CDriveIndex::Find(wstring *strQuery, wstring *strQueryPath, vector<SearchRes
 
 	//开始搜索
 
-	//若指定了搜索路径,首先看看路径下有多少子文件
-	DWORDLONG FRNPath;
-	long long nFilesInDir = -1;
-	if (strQueryPath&&strQueryPath->length())
-	{
-		FRNPath = Name2FRN(strQueryPath);
-		INT64 Offset = DirOffsetByIndex(FRNPath);
-		if (Offset != -1)
-			nFilesInDir = rgDirectories[Offset].nFiles;
-	}
-	//若少于10k,则使用另一种搜索方法
-	if (SearchWhere == IN_FILES && iOffset == 0 && nFilesInDir != -1 && nFilesInDir < 10000 && !bSkipSearch)
-	{
-		FindRecursively(*strQuery, szQueryLower, QueryFilter, QueryLength, strQueryPath, *rgsrfResults, maxResults, nResults);
-		SearchWhere = NO_WHERE;
-	}
-	else if (SearchWhere == IN_FILES && !bSkipSearch)  //未指定路径
+
+
+	if (SearchWhere == IN_FILES && !bSkipSearch) 
 	{
 		//在数据库中搜索
-		FindInJournal(*strQuery, szQueryLower, QueryFilter, QueryLength, (strQueryPath != NULL ? &strQueryPathLower : NULL), rgFiles, *rgsrfResults, iOffset, maxResults, nResults);
+		FindInJournal(*strQuery, szQueryLower, QueryFilter, QueryLength, (strQueryPath != NULL ? &strQueryPathLower : NULL),  *rgsrfResults, maxResults, nResults);
 		//If we found the maximum number of results in the file index we stop here
 		if (maxResults != -1 && nResults == -1)
 			iOffset++; //Start with next entry on the next incremental search
@@ -408,7 +419,6 @@ VOID CDriveIndex::SeekToUsn(USN usn, DWORD ReasonMask, DWORD ReturnOnlyOnClose, 
 //************************************
 VOID CDriveIndex::PopulateIndex()
 {
-	//Empty()
 	do
 	{
 		USN_JOURNAL_DATA ujd;
@@ -419,10 +429,10 @@ VOID CDriveIndex::PopulateIndex()
 		wsprintf(szRoot, TEXT("%c:\\"), m_tDriveLetter);
 
 		wstring szTemp(szRoot);
-		DWORDLONG IndexRoot = Name2FRN(&szTemp);
+		DWORDLONG IndexRoot = Name2FRN(szTemp);
 
 		wsprintf(szRoot, TEXT("%c:"), m_tDriveLetter);
-		AddDir(IndexRoot, &wstring(szRoot), 0);
+		Add(IndexRoot, &wstring(szRoot), 0);
 		m_dlRootIndex = IndexRoot;
 
 		//第一次遍历,统计所有文件/文件夹,让容器预留出空间
@@ -433,10 +443,9 @@ VOID CDriveIndex::PopulateIndex()
 
 		BYTE BufferData[sizeof(DWORDLONG) + 0x10000]; //每次处理64k的数据
 
-
+		
 		DWORD cb;
-		UINT numFiles = 0;
-		UINT numDirs = 1; //至少有个根目录c:
+		UINT numFiles = 1; //至少有个根目录c:
 		while (FALSE != DeviceIoControl(m_hVolume, //这个句柄就需要我们以读/写权限打开盘符才行
 			FSCTL_ENUM_USN_DATA,
 			&med,
@@ -450,15 +459,7 @@ VOID CDriveIndex::PopulateIndex()
 
 			while ((PBYTE)pRecord < (BufferData + cb))
 			{
-				if (pRecord->FileAttributes&FILE_ATTRIBUTE_DIRECTORY)
-				{
-					numDirs++;
-				}
-				else if (pRecord->FileAttributes&FILE_ATTRIBUTE_NORMAL)
-				{
-					numFiles++;
-				}
-				else if(pRecord->FileAttributes == FILE_ATTRIBUTE_ARCHIVE)
+				if (pRecord->FileAttributes&FILE_ATTRIBUTE_NORMAL || pRecord->FileAttributes == FILE_ATTRIBUTE_ARCHIVE || pRecord->FileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					numFiles++;
 				}
@@ -467,15 +468,12 @@ VOID CDriveIndex::PopulateIndex()
 			med.StartFileReferenceNumber = *(DWORDLONG*)BufferData;
 		}
 		//计数完毕,让容器预留出合适的空间,避免后面每次插入时都要重新申请内存
-		rgFiles.reserve(numFiles);
-		rgDirectories.reserve(numDirs);
-
+		rgIndexes.reserve(numFiles); //25m
+		mapIndexToOffset.reserve(numFiles); //10m
 		//第二次遍历,开始数据的插入
-		unordered_map<DWORDLONG, HashMapEntry> hmFiles;
-		unordered_map<DWORDLONG, HashMapEntry> hmDirectories;
-		unordered_map<DWORDLONG, HashMapEntry>::iterator it;
+	
 
-		med.StartFileReferenceNumber = 0; //
+		med.StartFileReferenceNumber = 0; 
 
 		while (FALSE != DeviceIoControl(m_hVolume,
 			FSCTL_ENUM_USN_DATA,
@@ -492,49 +490,17 @@ VOID CDriveIndex::PopulateIndex()
 				LPCWSTR pName = (LPCWSTR)((PBYTE)pRecord + pRecord->FileNameOffset);
 				DWORD dwLength = pRecord->FileNameLength / sizeof(WCHAR);
 				wstring szName(pName, dwLength); //据官方文档所说,不能依赖pRecord->FileName成员来获得文件名
-
-				if ((pRecord->FileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-				{
-					AddDir(pRecord->FileReferenceNumber, &szName, pRecord->ParentFileReferenceNumber);
-
-					HashMapEntry hme;
-					hme.iOffset = rgDirectories.size() - 1;
-					hme.ParentFRN = pRecord->ParentFileReferenceNumber;
-					hmDirectories[pRecord->FileReferenceNumber] = hme;
-				}
-				else if (pRecord->FileAttributes&FILE_ATTRIBUTE_NORMAL || pRecord->FileAttributes == FILE_ATTRIBUTE_ARCHIVE)
+				
+				if (pRecord->FileAttributes&FILE_ATTRIBUTE_NORMAL || pRecord->FileAttributes == FILE_ATTRIBUTE_ARCHIVE|| pRecord->FileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					Add(pRecord->FileReferenceNumber, &szName, pRecord->ParentFileReferenceNumber);
-					HashMapEntry hme;
-					hme.iOffset = rgFiles.size() - 1;
-					hme.ParentFRN = pRecord->ParentFileReferenceNumber;
-					hmFiles[pRecord->FileReferenceNumber] = hme;
 				}
 				pRecord = (PUSN_RECORD)((PBYTE)pRecord + pRecord->RecordLength);
 			}
 			med.StartFileReferenceNumber = *(DWORDLONG*)BufferData;
 		}
-
-		//计算出每个目录下有多少个文件,这一步最耗时,但在某个子文件少于1w的目录下搜索文件时,该计数有助于缩短搜索时间
-		for (it = hmFiles.begin(); it != hmFiles.end(); it++)
-		{
-			HashMapEntry* hme = &hmDirectories[it->second.ParentFRN]; //文件所属目录的hme
-			do
-			{
-				rgDirectories[hme->iOffset].nFiles++;  //定位到数据库中的该目录,文件计数+1
-				HashMapEntry* hme2 = &hmDirectories[hme->ParentFRN]; //同时意味着父目录的父目录也该文件计数+1
-
-				if (hme != hme2)
-					hme = hme2;
-				else // 一个目录不可能是自己的父目录
-					break;
-			} while (hme->ParentFRN != 0);  //父目录的父目录的父目录的.....
-		}
-		//调整vector的大小
-		rgFiles.shrink_to_fit();
-		rgDirectories.shrink_to_fit();
-		//sort(rgFiles.begin(), rgFiles.end());  //注意,我们排序了,IndexedFile的'<'操作符就用于排序,这有助于搜索,但之后想要插入时,就比较费力了
-		//sort(rgDirectories.begin(), rgDirectories.end());
+		rgIndexes.shrink_to_fit(); //100m
+		DebugBreak();
 	} while (FALSE);
 }
 
@@ -716,45 +682,32 @@ DWORDLONG CDriveIndex::MakeFilter(wstring* szName)
 }
 
 //************************************
-// Method:    AddDir 向数据库里插入一个文件夹
+// Method:    Add 向数据库里插入一个文件
 // Returns:   BOOL
 // Parameter: DWORDLONG Index 文件夹的FRN
 // Parameter: wstring * szName 文件夹名
 // Parameter: DWORDLONG ParentIndex 父目录的FRN
 // Parameter: DWORDLONG Filter 过滤器,用于查询
 //************************************
-BOOL CDriveIndex::AddDir(DWORDLONG Index, wstring *szName, DWORDLONG ParentIndex, DWORDLONG Filter)
+BOOL CDriveIndex::Add(DWORDLONG Index, wstring *szName, DWORDLONG ParentIndex, DWORDLONG Filter)
 {
-	IndexedDirectory i;
-	i.Index = Index;
+	if (mapIndexToOffset.find(Index) != mapIndexToOffset.end())
+		return(FALSE); // Index already in database;
+
 	if (!Filter)
 		Filter = MakeFilter(szName);
-	i.Filter = Filter;
-	i.nFiles = 0;
-	rgDirectories.insert(rgDirectories.end(), i);
+
+	IndexEntry ie;
+	ie.Filter = Filter;
+	ie.ParentFRN = ParentIndex;
+	ie.szName = wstring(*szName);
+	rgIndexes.insert(rgIndexes.end(), ie);
+
+	mapIndexToOffset[Index] = rgIndexes.size() - 1;
 	return(TRUE);
 }
 
-//************************************
-// Method:    Add 向数据库里插入一个文件
-// Returns:   BOOL
-// Parameter: DWORDLONG Index 文件的FRN
-// Parameter: wstring * szName 文件名
-// Parameter: DWORDLONG ParentIndex 父目录的FRN
-// Parameter: DWORDLONG Filter 过滤器,用于查询
-//************************************
-BOOL CDriveIndex::Add(DWORDLONG Index, wstring *szName, DWORDLONG ParentIndex, DWORDLONG Filter)
-{
-	IndexedFile i;
-	if (!Filter)
-		Filter = MakeFilter(szName);
 
-	i.Index = Index;
-	i.Filter = Filter;
-
-	rgFiles.insert(rgFiles.end(), i);
-	return TRUE;
-}
 
 //************************************
 // Method:    AbandonMonitor  //用于手动退出线程
@@ -829,35 +782,18 @@ DWORD CDriveIndex::MonitorThread(PVOID lpParameter)
 
 
 
-void CDriveIndex::FindRecursively(wstring strQuery, const WCHAR* szQueryLower, DWORDLONG QueryFilter, DWORDLONG QueryLength, wstring * strQueryPath, vector<SearchResultFile> rgsrfResults, int maxResults, int nResults)
-{
-	throw std::logic_error("The method or operation is not implemented.");
-}
 
-//************************************
-// Method:    DirOffsetByIndex 给定FRN,获得对应文件夹在数据库中的偏移,即,数组下标
-// Returns:   INT64 文件夹在数组中的偏移
-// Parameter: DWORDLONG DirFRN 文件夹的FRN
-//************************************
-INT64 CDriveIndex::DirOffsetByIndex(DWORDLONG DirFRN)
-{
-	vector<IndexedDirectory>::difference_type pos;
-	IndexedDirectory i;
-	i.Index = DirFRN;
-	pos = distance(rgDirectories.begin(), lower_bound(rgDirectories.begin(), rgDirectories.end(), i));
-	return (INT64)(pos == rgDirectories.size() ? -1 : pos);
-}
 
 //************************************
 // Method:    FRN 获得指定文件/文件夹的FRN
 // Returns:   DWORDLONG 指定文件/文件夹的FRN
 // Parameter: wstring * strPath 文件路径
 //************************************
-DWORDLONG CDriveIndex::Name2FRN(wstring * strPath)
+DWORDLONG CDriveIndex::Name2FRN(wstring& strPath)
 {
 	DWORDLONG frn = 0;
 
-	HANDLE hFile = CreateFile(strPath->c_str(),
+	HANDLE hFile = CreateFile(strPath.c_str(),
 		0, // 摘自MSDN: if NULL, the application can query certain metadata even if GENERIC_READ access would have been denied,这里要获得盘符的FRN,只能为0
 		FILE_SHARE_READ | FILE_SHARE_WRITE,
 		NULL,
@@ -878,57 +814,7 @@ DWORDLONG CDriveIndex::Name2FRN(wstring * strPath)
 	return frn;
 }
 
-USNEntry CDriveIndex::FRN2Name(DWORDLONG frn)   //很占用时间
-{
-	if (frn >= m_dlRootIndex)  //发现对于数据流文件,在递归时会出现ParentFRN = 0x000b00000000000b的情况,这已经大于了0x0005000000000005(根目录),于是我们直接返回
-		return USNEntry(wstring(1, m_tDriveLetter) + wstring(TEXT(":")), 0);
 
-	USN_JOURNAL_DATA ujd;
-	Query(&ujd);
-
-	MFT_ENUM_DATA_V0 med;
-
-	med.StartFileReferenceNumber = frn;
-	med.LowUsn = 0;
-	med.HighUsn = ujd.NextUsn;
-
-	//只用容纳一个entry,不用太大
-	BYTE pData[sizeof(DWORDLONG) + 0x1000];
-	DWORD cb;
-	while (DeviceIoControl(m_hVolume, FSCTL_ENUM_USN_DATA, &med, sizeof(med), pData, sizeof(pData), &cb, NULL) != FALSE) {
-		PUSN_RECORD pRecord = (PUSN_RECORD)&pData[sizeof(USN)];
-		while ((PBYTE)pRecord < (pData + cb)) {
-			if (pRecord->FileReferenceNumber == frn)
-				return USNEntry(wstring((LPCWSTR)((PBYTE)pRecord + pRecord->FileNameOffset), pRecord->FileNameLength / sizeof(WCHAR)), pRecord->ParentFileReferenceNumber);
-			pRecord = (PUSN_RECORD)((PBYTE)pRecord + pRecord->RecordLength);
-		}
-		med.StartFileReferenceNumber = *(DWORDLONG *)pData;
-	}
-
-	return USNEntry(wstring(TEXT("")), 0);
-}
-
-
-//************************************
-// Method:    FRN2Path 根据FRN,构建目标文件的全路径
-// Parameter: DWORDLONG Index FRN
-// Parameter: wstring * Path 全路径
-//************************************
-void CDriveIndex::FRN2Path(DWORDLONG Index, wstring* Path)
-{
-	if (Path->capacity() < _MAX_PATH)
-	{
-		Path->reserve(_MAX_PATH);
-	}
-	*Path = TEXT("");
-	int n = 0;
-	do {
-		USNEntry file = FRN2Name(Index);
-		*Path = file.Name + ((n != 0) ? TEXT("\\") : TEXT("")) + *Path;
-		Index = file.ParentIndex;
-		n++;
-	} while (Index != 0);
-}
 
 
 

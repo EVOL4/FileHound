@@ -74,7 +74,7 @@
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;QT_WINEXTRAS_LIB;QT_SQL_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
@@ -83,6 +83,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <AdditionalDependencies>qtmain.lib;shell32.lib;User32.LIB;Qt5Widgets.lib;Qt5Gui.lib;Qt5Core.lib;Qt5WinExtras.lib;Qt5Sql.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -96,6 +97,7 @@
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -200,6 +202,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChangeJrnl.cpp" />
+    <ClCompile Include="KC\kccompare.cpp" />
+    <ClCompile Include="KC\kccompress.cpp" />
+    <ClCompile Include="KC\kcdb.cpp" />
+    <ClCompile Include="KC\kcfile.cpp" />
+    <ClCompile Include="KC\kchashdb.cpp" />
+    <ClCompile Include="KC\kcmap.cpp" />
+    <ClCompile Include="KC\kcplantdb.cpp" />
+    <ClCompile Include="KC\kcregex.cpp" />
+    <ClCompile Include="KC\kcthread.cpp" />
+    <ClCompile Include="KC\kcutil.cpp" />
     <ClCompile Include="match.cpp" />
     <ClCompile Include="MyDB.cpp" />
     <ClCompile Include="main.cpp" />
@@ -279,6 +291,18 @@
     </QtMoc>
     <ClInclude Include="bonus.h" />
     <ClInclude Include="ChangeJrnl.h" />
+    <ClInclude Include="KC\kccommon.h" />
+    <ClInclude Include="KC\kccompare.h" />
+    <ClInclude Include="KC\kccompress.h" />
+    <ClInclude Include="KC\kcdb.h" />
+    <ClInclude Include="KC\kcfile.h" />
+    <ClInclude Include="KC\kchashdb.h" />
+    <ClInclude Include="KC\kcmap.h" />
+    <ClInclude Include="KC\kcplantdb.h" />
+    <ClInclude Include="KC\kcregex.h" />
+    <ClInclude Include="KC\kcthread.h" />
+    <ClInclude Include="KC\kcutil.h" />
+    <ClInclude Include="KC\myconf.h" />
     <ClInclude Include="match.h" />
     <ClInclude Include="MyDB.h" />
     <QtMoc Include="QActionListView.h">

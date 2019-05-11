@@ -40,53 +40,52 @@ int main(int argc, char *argv[])
 // 	}
 
 	
-	WCHAR xx[] = { L"z囧hh de" };
-	WCHAR xxx[] = { L"囧d" };
-	size_t xxxx[_MAX_PATH] = { 0 };
-	//[0x00000000] = { Filename = L"$TxfLog.blf" Path = L"\\$RmMetadata\\$TxfLog\\" Filter = 0xe00000d000884862 ... }
-
-	DWORD fiat = GetFileAttributes(L"C:\\");
-	int dd = GetLastError();
-	score_t sc = match_positions(xxx, xx, xxxx);
- 	CDriveIndex* c = CreateIndex('H');
-
-	wstring query(L"t");
-
-	vector<SearchResultFile> results;
-
-	clock_t startTime, endTime;
-    startTime = clock();//计时开始
-	c->Find(&query, NULL, &results, TRUE, -1);
-	endTime = clock();//计时结束
-	WCHAR time[MAX_PATH] = { 0 };
-	int dTime = (int)(endTime - startTime) / CLOCKS_PER_SEC;
-	wsprintf(time, L"Time is %d",dTime);
-	MessageBox(NULL, time, time, MB_OK);
-
-	
-
- 	delete c;
-
-	int x = 0;
-
-//     QApplication a(argc, argv);
-//     int iRet = 0;
-//     QWidget* empty_parent = new QWidget;
-//     MainWindow* w = new MainWindow(empty_parent); //将父窗口设置为empty_parent,这样在任务栏就不会出现图标
+// 	WCHAR xx[] = { L"腾讯QQ.lnk" };
+// 	WCHAR xxx[] = { L"txqq" };
+// 	size_t xxxx[_MAX_PATH] = { 0 };
 // 
-//     //在最后一个窗口关闭的时候不关闭应用程序,可以调用 a.quit()来正确退出
-//     a.setQuitOnLastWindowClosed(false);
-//     //去掉背景和边框
-//     w->setWindowFlag(Qt::FramelessWindowHint,true);
-//     w->setWindowFlag(Qt::NoDropShadowWindowHint,true);
-//     w->setAttribute(Qt::WA_TranslucentBackground);
-//     w->show();
-//     w->move ((QApplication::desktop()->width() - w->width())/2,(QApplication::desktop()->height() - w->height())/1.4);
+// 	DWORD fiat = GetFileAttributes(L"C:\\");
+// 	int dd = GetLastError();
+// 	score_t sc = match_positions(xxx, xx, xxxx);
+//  	CDriveIndex* c = CreateIndex('C');
 // 
-//     iRet = a.exec();
+// 	wstring query(L"txqq");
 // 
-//     delete empty_parent;  //当父窗口销毁时,子窗口也会被正确销毁
-//     return iRet;
+// 	vector<SearchResultFile> results;
+// 
+// 	clock_t startTime, endTime;
+//     startTime = clock();//计时开始
+// 	c->Find(&query, NULL, &results, TRUE, -1);
+// 	endTime = clock();//计时结束
+// 	WCHAR time[MAX_PATH] = { 0 };
+// 	int dTime = (int)(endTime - startTime) / CLOCKS_PER_SEC;
+// 	wsprintf(time, L"Time is %d",dTime);
+// 	MessageBox(NULL, time, time, MB_OK);
+// 
+// 	
+// 
+//  	delete c;
+// 
+// 	int x = 0;
+
+    QApplication a(argc, argv);
+    int iRet = 0;
+    QWidget* empty_parent = new QWidget;
+    MainWindow* w = new MainWindow(empty_parent); //将父窗口设置为empty_parent,这样在任务栏就不会出现图标
+
+    //在最后一个窗口关闭的时候不关闭应用程序,可以调用 a.quit()来正确退出
+    a.setQuitOnLastWindowClosed(false);
+    //去掉背景和边框
+    w->setWindowFlag(Qt::FramelessWindowHint,true);
+    w->setWindowFlag(Qt::NoDropShadowWindowHint,true);
+    w->setAttribute(Qt::WA_TranslucentBackground);
+    w->show();
+    w->move ((QApplication::desktop()->width() - w->width())/2,(QApplication::desktop()->height() - w->height())/1.4);
+
+    iRet = a.exec();
+
+    delete empty_parent;  //当父窗口销毁时,子窗口也会被正确销毁
+    return iRet;
    // qApp为指向a的全局指针
 }
 

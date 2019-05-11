@@ -77,7 +77,7 @@ void QFileListView::showResults(const QString & input)
 		//QStandardItemModel::clear()将自动回收其拥有的所有item,所以我们只管申请,不管释放内存
 		QStandardItem*  singleItem = new QStandardItem;//必须申请内存,局部内存将被销毁,到QSearchResultDelegate::paint()将接收到空的参数
 		//SEARCH_RESULT_ITEM_DATA itemData = util::GetFileData(QString::fromWCharArray(L"C:\\Users\\rye\\Desktop\\Understanding_the_LFH.pdf"));
-		SEARCH_RESULT_ITEM_DATA itemData = util::GetFileData(QString::fromWCharArray(L"C:\\Users\\rye\\Desktop\\1.txt"));
+		SEARCH_RESULT_ITEM_DATA itemData = util::GetFileData(QString::fromWCharArray(L"C:\\Users\\rye\\Desktop\\囧.txt"));
 		if (i == 50)
 		{
 			itemData.type = TYPE_HEADER;

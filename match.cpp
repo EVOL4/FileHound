@@ -83,6 +83,9 @@ score_t match_positions(const wchar_t *needle, const wchar_t *haystack, size_t *
 	if (!*needle)
 		return SCORE_MIN;
 
+	if (0==has_match(needle, haystack))
+		return SCORE_MIN;
+
 	int n = wcslen(needle);
 	int m = wcslen(haystack);
 

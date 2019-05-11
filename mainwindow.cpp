@@ -92,7 +92,7 @@ void MainWindow::on_lineEdit_textChanged(const QString &input)
 
     if(m_lineEdit->text().isEmpty())
     {
-		//emit empty_input();	//为了避免堵塞界面线程,像这种可能花费时间的操作,统统发送信号,以异步方式处理
+		emit empty_input();	//为了避免堵塞界面线程,像这种可能花费时间的操作,统统发送信号,以异步方式处理
     }
     else if(!m_lineEdit->text().isEmpty())
     {
