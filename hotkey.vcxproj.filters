@@ -61,9 +61,6 @@
     <Filter Include="Core\DataBase">
       <UniqueIdentifier>{e3f8de99-08d7-47c8-a357-0c7f01240882}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\ChangeJrnl">
-      <UniqueIdentifier>{77ea709a-d87d-4fd6-969f-b078a8ff683c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="infrastructure">
       <UniqueIdentifier>{a03268fb-ce45-4eb2-a1b8-618047257774}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,12 @@
     </Filter>
     <Filter Include="Core\Pinyin">
       <UniqueIdentifier>{7d1f0658-e9c7-4db3-b0d3-4477cb265d1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\DataBase\KC">
+      <UniqueIdentifier>{eb1ffd19-96b5-4f88-bad8-d24e8fff2b0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\DataBase\ChangeJrnl">
+      <UniqueIdentifier>{77ea709a-d87d-4fd6-969f-b078a8ff683c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +100,7 @@
       <Filter>GUI\QInputLineEdit</Filter>
     </ClCompile>
     <ClCompile Include="ChangeJrnl.cpp">
-      <Filter>Core\ChangeJrnl</Filter>
+      <Filter>Core\DataBase\ChangeJrnl</Filter>
     </ClCompile>
     <ClCompile Include="QWinHotKey\QWinHotkey.cpp">
       <Filter>Core\QWinHotkey</Filter>
@@ -115,34 +118,34 @@
       <Filter>infrastructure\FuzzySearch</Filter>
     </ClCompile>
     <ClCompile Include="KC\kccompare.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kccompress.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcdb.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcfile.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kchashdb.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcmap.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcplantdb.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcregex.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcthread.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
     <ClCompile Include="KC\kcutil.cpp">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +169,9 @@
     </QtMoc>
     <QtMoc Include="QActionListView.h">
       <Filter>GUI\QActionListView</Filter>
+    </QtMoc>
+    <QtMoc Include="MyDB.h">
+      <Filter>Core\DataBase</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -205,10 +211,7 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="ChangeJrnl.h">
-      <Filter>Core\ChangeJrnl</Filter>
-    </ClInclude>
-    <ClInclude Include="MyDB.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\ChangeJrnl</Filter>
     </ClInclude>
     <ClInclude Include="match.h">
       <Filter>infrastructure\FuzzySearch</Filter>
@@ -219,41 +222,41 @@
     <ClInclude Include="bonus.h">
       <Filter>infrastructure\FuzzySearch</Filter>
     </ClInclude>
+    <ClInclude Include="KC\kcdb.h">
+      <Filter>Core\DataBase\KC</Filter>
+    </ClInclude>
     <ClInclude Include="KC\kccommon.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kccompare.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kccompress.h">
-      <Filter>Core\DataBase</Filter>
-    </ClInclude>
-    <ClInclude Include="KC\kcdb.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kcfile.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kchashdb.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kcmap.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kcplantdb.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kcregex.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kcthread.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\kcutil.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
     <ClInclude Include="KC\myconf.h">
-      <Filter>Core\DataBase</Filter>
+      <Filter>Core\DataBase\KC</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -304,7 +304,10 @@
     <ClInclude Include="KC\kcutil.h" />
     <ClInclude Include="KC\myconf.h" />
     <ClInclude Include="match.h" />
-    <ClInclude Include="MyDB.h" />
+    <QtMoc Include="MyDB.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\debug;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtSql</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtSql</IncludePath>
+    </QtMoc>
     <QtMoc Include="QActionListView.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\debug;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtSql</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc;$(QTDIR)\include\QtWinExtras;$(QTDIR)\include\QtSql</IncludePath>

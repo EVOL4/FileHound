@@ -71,8 +71,7 @@ private slots:
 protected :
 	void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
 	
-	//bool nativeEvent(const QByteArray &eventType, void *message, long *result) override; https://blog.csdn.net/xiezhongyuan07/article/details/83585100 
-	//在listview中接收WM_JOURNALCHANGED还是在主窗口中接收?想了想让主窗口接收比较好
+	
 };
 
 #define OFFSET_FIRST_COMMAND 0x0
