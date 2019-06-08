@@ -2,7 +2,8 @@
 #include <locale>
 #include "ChangeJrnl.h"
 #include "Pinyin.h"
-
+#include <QString>
+#include <QDebug>
 // Exported function to create the index of a drive
 CDriveIndex* _stdcall CreateIndex(WCHAR cDrive)
 {
@@ -14,6 +15,7 @@ CDriveIndex* _stdcall CreateIndex(WCHAR cDrive)
 
 CDriveIndex::CDriveIndex()
 {
+	InitializeCriticalSection(&m_cs);
 	m_tDriveLetter = 'A';
 	m_hVolume = INVALID_HANDLE_VALUE;
 
@@ -32,57 +34,63 @@ CDriveIndex::CDriveIndex()
 
 CDriveIndex::~CDriveIndex()
 {
+	EnterCriticalSection(&m_cs);
 	//清理工作
-	if (m_db->open(m_DbName, TreeDB::OWRITER))
+	if (m_db->open(m_DbName, TreeDB::OWRITER))  //保存位置,下次启动时只用处理记录点之后的数据
 	{
 		CUR cur;
 		cur.UsnJournalID = m_rujd.UsnJournalID;
 		cur.CurUsn = m_rujd.StartUsn;
 		m_db->set(m_dlRootIndex + 1, (char*)&cur, sizeof(cur));
 		m_db->close();
+		qDebug() << QString("JournalID = ") << cur.UsnJournalID << QString("Saved!") << endl;
 	}
 	
 	if (m_hVolume != INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hVolume);
+		m_hVolume = NULL;
 	}
 	if (m_hAsyncVolume != INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hAsyncVolume);
+		m_hAsyncVolume = NULL;
 	}
 	if (m_buffer != NULL)
 	{
 		HeapFree(GetProcessHeap(), 0, m_buffer);
+		m_buffer = NULL;
 	}
 	if (m_OverLapped.hEvent != NULL)
 	{
 		//让线程知道我们正在退出
 		AbandonMonitor();
-		CloseHandle(m_OverLapped.hEvent);
+	}
+	
+	if (m_db != NULL)
+	{
+		m_db->close();
+		delete m_db;
+		m_db = NULL;
+	}
+	if (m_DbName != NULL)
+	{
+		free(m_DbName);
+		m_DbName = NULL;
 	}
 	if (m_hMonitorThread != NULL)
 	{
 		WaitForSingleObject(m_hMonitorThread, INFINITE);
 		CloseHandle(m_hMonitorThread);
-	}
-	if (m_db != NULL)
-	{
-		m_db->close();
-		delete m_db;
-	}
-	if (m_DbName != NULL)
-	{
-		free(m_DbName);
-	}
+		m_hMonitorThread = NULL;
 
-	m_MainWindow = NULL;
-	m_hVolume = NULL;
-	m_hAsyncVolume = NULL;
-	m_buffer = NULL;
-	m_OverLapped.hEvent = NULL;
-	m_hMonitorThread = NULL;
-	m_db = NULL;
-	m_DbName = NULL;
+		CloseHandle(m_OverLapped.hEvent);
+		m_OverLapped.hEvent = NULL;
+	}
+	LeaveCriticalSection(&m_cs);
+	DeleteCriticalSection(&m_cs);
+	
+	
 }
 
 //************************************
@@ -173,7 +181,7 @@ BOOL CDriveIndex::Init(_TCHAR cDriveLetter, DWORD dwBufLength)
 			}
 			m_db->close();
 		}
-		////////////////////////////////////////////////////////////上面的步骤挪出去
+	
 		if (bReBuild)
 		{
 			InitialzeForMonitoring();
@@ -181,7 +189,7 @@ BOOL CDriveIndex::Init(_TCHAR cDriveLetter, DWORD dwBufLength)
 		else
 		{
 
-			NotifyMoreData(500);
+			NotifyMoreData(2000);
 		}
 		bRet = TRUE;
 	} while (FALSE);
@@ -231,17 +239,27 @@ VOID CDriveIndex::InitialzeForMonitoring()
 //处理所有的记录,调用该函数前至少应调用一次SeekToUsn来为本函数定位
 void CDriveIndex::ProcessAvailableRecords()
 {
+	if (!TryEnterCriticalSection(&m_cs))
+	{
+		return;
+	}
+	if (!m_db)
+	{
+		return;
+	}
 	if (!m_db->open(m_DbName, TreeDB::OWRITER))
 	{
 		return;
 	}
 	PUSN_RECORD pRecord = NULL;
+	//int i = 0;
 	while (pRecord = this->EnumNext())
 	{
 		if (pRecord->Reason&USN_REASON_CLOSE)
 		{
 			LPCWSTR pName = (LPCWSTR)((PBYTE)pRecord + pRecord->FileNameOffset);
 			size_t dwLength = pRecord->FileNameLength / sizeof(WCHAR);
+			//i++;
 			//新增记录
 			if ( pRecord->Reason&USN_REASON_FILE_CREATE)
 			{
@@ -259,17 +277,21 @@ void CDriveIndex::ProcessAvailableRecords()
 			}
 		}
 	}
-	m_db->close();
-	if (GetLastError() == S_OK) //若所有新记录都被处理完毕,EnumNext()将把LastError设置为NOERROR
+	DWORD lr = GetLastError();
+	//qDebug() <<QString( m_DbName )<<QString::fromWCharArray(L"New Records:")<< i << endl;
+	m_db->close(); //有可能修改lr的值，所以要在此句之前获取lr
+	
+	if (lr == NO_ERROR) //若所有新记录都被处理完毕,EnumNext()将把LastError设置为NOERROR
 	{
-		//todo:开始后台更新线程
-		NotifyMoreData(500);
+		//OutputDebugString(L"NotifyMoreData");
+		NotifyMoreData(2000);
 	}
 	else
 	{
 		//有错误发生,日志可能被删除了之类的,总之需要重新处理数据
 		InitialzeForMonitoring();
 	}
+	LeaveCriticalSection(&m_cs);
 }
 
 //************************************
@@ -572,12 +594,16 @@ void CDriveIndex::FindInDB(wstring &strQuery, DWORDLONG QueryFilter, DWORDLONG Q
 
 		score_t MatchQuality;
 		wstring szFileName(csName);
-		//
-		// 		if strQuery里有中文
-		// 			then szFileName不转英文
-		// 		else
-
-		std::transform(szFileName.begin(), szFileName.end(), szFileName.begin(), pinyinFirstLetter);
+		
+		if (hasChinese(csName))
+		{
+			std::transform(szFileName.begin(), szFileName.end(), szFileName.begin(), tolower);
+		}
+		else
+		{
+			std::transform(szFileName.begin(), szFileName.end(), szFileName.begin(), pinyinFirstLetter);
+		}
+	
 
 		MatchQuality = match_positions(strQuery.c_str(), szFileName.c_str(), nullptr);   //模糊匹配占的时间很少
 
@@ -630,6 +656,8 @@ void CDriveIndex::FindInDB(wstring &strQuery, DWORDLONG QueryFilter, DWORDLONG Q
 	delete cur;	m_db->close();
 }
 
+
+//todo:处理上次因限制而未给出所有搜索结果,这次给出了更详细的查询的情况
 int CDriveIndex::Find(wstring *strQuery, wstring *strQueryPath, vector<SearchResultFile> *rgsrfResults, BOOL bSort, int maxResults)
 {
 	//默认搜索文件
@@ -926,7 +954,6 @@ VOID CDriveIndex::PopulateIndex2DB()
 	//Empty()
 	do
 	{
-		
 		USN_JOURNAL_DATA ujd;
 		if (!Query(&ujd)) break;
 
@@ -941,6 +968,7 @@ VOID CDriveIndex::PopulateIndex2DB()
 		wsprintf(szRoot, TEXT("%c:"), m_tDriveLetter);
 		Add_DB(m_dlRootIndex, szRoot, wcslen(szRoot), 0);
 
+
 		MFT_ENUM_DATA_V0 med; //v1是不行的
 		med.StartFileReferenceNumber = 0; //第一次需要设置为0以枚举所有文件,之后可以设置为需要的起始位置
 		med.LowUsn = 0;
@@ -949,6 +977,12 @@ VOID CDriveIndex::PopulateIndex2DB()
 		BYTE BufferData[sizeof(DWORDLONG) + 0x10000]; //每次处理64k的数据
 
 		DWORD cb;
+
+
+ 	clock_t startTime, endTime;
+ 	startTime = clock();//计时开始
+	int count = 0;
+	
 
 		while (FALSE != DeviceIoControl(m_hVolume,
 			FSCTL_ENUM_USN_DATA,
@@ -969,15 +1003,17 @@ VOID CDriveIndex::PopulateIndex2DB()
 				if (pRecord->FileAttributes&FILE_ATTRIBUTE_DIRECTORY || pRecord->FileAttributes&FILE_ATTRIBUTE_NORMAL || pRecord->FileAttributes == FILE_ATTRIBUTE_ARCHIVE)
 				{
 					Add_DB(pRecord->FileReferenceNumber, pName, dwLength, pRecord->ParentFileReferenceNumber);
-				}
+					count++;
 
+				}
 				pRecord = (PUSN_RECORD)((PBYTE)pRecord + pRecord->RecordLength);
 			}
 			med.StartFileReferenceNumber = *(DWORDLONG*)BufferData;
 		}
+		endTime = clock();//计时结束
+		double dTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+		qDebug() <<QString::fromWCharArray(szRoot)<<QString::fromWCharArray(L"文件数：")<< QString::number(count)<< QString::fromWCharArray(L"花费时间：") << QString::number(dTime)<<endl;
 		m_db->close();
-
-
 	} while (FALSE);
 }
 
@@ -1006,18 +1042,16 @@ PUSN_RECORD CDriveIndex::EnumNext()
 			&m_dwBufferLength,
 			NULL))
 		{
-			//有可能当所有Record都被读出来了,我们将返回NULL给函数的调用者,此时我们需要设置LastError表明并没有错误发生
-			SetLastError(NO_ERROR);
-
 			//数据的开头的usn就等于该块数据的最后一个USN_RECORD的下一个
 			//将这个usn存储起来,下一次读数据时将从该处继续读
 			m_rujd.StartUsn = *(USN *)m_buffer;
-
 			//若有至少一个USN_RECORD,那么我们需要更新我们的指针为BLOCK中的第一块
 			if (m_dwBufferLength > sizeof(USN))
 			{
 				m_usnCurrent = (PUSN_RECORD)(m_buffer + sizeof(USN));
 			}
+			//有可能当所有Record都被读出来了,我们将返回NULL给函数的调用者,此时我们需要设置LastError表明并没有错误发生
+			SetLastError(NO_ERROR);
 		}
 	}
 	else
@@ -1254,11 +1288,9 @@ DWORD CDriveIndex::MonitorThread(PVOID lpParameter)
 		{
 			//if (__this->m_MainWindow == NULL) break;//当前类未与窗口相连,则无法发送消息,线程退出
 			if (__this->m_dwDelay) Sleep(__this->m_dwDelay); //等待一段时间再发送,避免占用资源
-			OutputDebugString(TEXT("new record!"));
+			//OutputDebugString(TEXT("new record!"));
 
 			__this->ProcessAvailableRecords();
-			__this->NotifyMoreData(__this->m_dwDelay);
-
 			//PostMessage(__this->m_MainWindow, WM_JOURNALCHANGED, __this->GetLetter(), NULL);
 		}
 		else if (dwRet == WAIT_IO_COMPLETION)
@@ -1311,6 +1343,7 @@ VOID CDriveIndex::NotifyMoreData(DWORD dwDelay)
 	rujd = m_rujd;
 	rujd.BytesToWaitFor = 1;
 	DWORD dwRet = 0;
+
 	// 至少读一个字节,当读出一个字节后,说明有新的记录,m_OverLapped中的事件将被授信
 	BOOL fOk = DeviceIoControl(m_hAsyncVolume,
 		FSCTL_READ_USN_JOURNAL,
@@ -1321,9 +1354,11 @@ VOID CDriveIndex::NotifyMoreData(DWORD dwDelay)
 		&dwRet,
 		&m_OverLapped);
 
-	DWORD lr = GetLastError();
+	//DWORD  lr = GetLastError();
 
-	if (!fOk && (GetLastError() != ERROR_IO_PENDING)) {
-		cerr << "get error: NotifyMoreData" << endl;
-	}
+	
+// 	if (!fOk && (GetLastError() != ERROR_IO_PENDING)) {
+// 		OutputDebugString(L"get error: NotifyMoreData");
+// 		cerr << "get error: NotifyMoreData" << endl;
+// 	}
 }

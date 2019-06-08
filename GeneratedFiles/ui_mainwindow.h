@@ -45,11 +45,13 @@ public:
         listView = new QFileListView(centralWidget);
         listView->setObjectName(QStringLiteral("listView"));
         listView->setEnabled(true);
-        listView->setGeometry(QRect(52, 130, 571, 381));
+        listView->setGeometry(QRect(52, 130, 571, 12));
         listView->setStyleSheet(QLatin1String("QListView{\n"
 " background-color:rgb(27, 25, 56);\n"
 "}"));
         listView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
+        listView->setMovement(QListView::Free);
+        listView->setResizeMode(QListView::Adjust);
         groupBox_main = new QGroupBox(centralWidget);
         groupBox_main->setObjectName(QStringLiteral("groupBox_main"));
         groupBox_main->setGeometry(QRect(32, 60, 621, 70));

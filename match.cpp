@@ -185,7 +185,8 @@ score_t match_positions(const wchar_t *needle, const wchar_t *haystack, size_t *
 					match_required =
 						i && j &&
 						M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE;
-					positions[i] = j--;
+					positions[i] = j+1;
+					j--;
 					break;
 				}
 			}

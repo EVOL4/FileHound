@@ -43,9 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(this, SIGNAL(user_input(const QString &)), ui->listView, SLOT(showResults(const QString &)));
 	connect(this, SIGNAL(empty_input()), ui->listView, SLOT(clearResults()));
 	connect(ui->lineEdit, SIGNAL(arrowKeyPressed(QKeyEvent *)), this, SLOT(arrowKeyTakeover(QKeyEvent *)));
-	tools->SetUpTrayIcon();
 
-
+	connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(on_quit()));
+	//tools->SetUpTrayIcon();
 
 }
 
@@ -65,7 +65,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             m_lineEdit->clear();
              //在输入框有字的情况下,程序隐藏又出现时,listview会留下残影,猜想是on_lineEdit_textChanged没来得及执行主界面就隐藏了,这样可以解决
             tools->sleep(50); //ps:调用windows的Sleep在调试外好像没作用
-            //this->hide(); //qt貌似不支持全局热键,这种方法注册的快捷键在窗口没激活时是不起效果的,自己调用windows的api解决吧
+            this->hide(); //qt貌似不支持全局热键,这种方法注册的快捷键在窗口没激活时是不起效果的,自己调用windows的api解决吧
         }
         else if(QApplication::activeWindow()==this)
         {
@@ -96,6 +96,7 @@ void MainWindow::on_lineEdit_textChanged(const QString &input)
     }
     else if(!m_lineEdit->text().isEmpty())
     {
+
 		emit user_input(input);
     }
 }
@@ -103,6 +104,12 @@ void MainWindow::on_lineEdit_textChanged(const QString &input)
 void MainWindow::arrowKeyTakeover(QKeyEvent *event)
 {
 	return m_listView->keyEventForward(event);
+}
+
+void MainWindow::on_quit()
+{
+	tools->HideTrayIcon();
+	this->close();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

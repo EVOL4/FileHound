@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
+#include <assert.h>
 #include "../KC/kchashdb.h"
 #include "match.h"
 using namespace std;
@@ -179,6 +179,7 @@ private:
 	vector<IndexEntry> rgIndexes;
 
 	LPSTR m_DbName;
+	CRITICAL_SECTION m_cs;
 
 };
 

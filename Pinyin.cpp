@@ -241,3 +241,17 @@ static wchar_t firstLetterArray[HANZI_COUNT] = __TEXT(
 			return hanzi;
 		}
 	 }
+
+	bool hasChinese(wchar_t* s)
+	{
+		while (*s)
+		{
+			int index = *s - HANZI_START;
+			if (index >= 0 && index <= HANZI_COUNT)
+			{
+				return true;
+			}
+			s++;
+		}
+		return false;
+	}

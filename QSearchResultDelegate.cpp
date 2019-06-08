@@ -1,4 +1,5 @@
 #include <QPainter>
+#include "match.h"
 #include "QSearchResultDelegate.h"
 #include "util/util.h"
 
@@ -55,15 +56,29 @@ QSize QSearchResultDelegate::sizeHint(const QStyleOptionViewItem &option, const 
 	return size;
 }
 
+void QSearchResultDelegate::setQuery(const QString& query)
+{
+
+	
+	m_query = query;
+}
+
 void QSearchResultDelegate::SwitchMode(enum FH::ViewMode mode)
 {
 	m_mode = mode;
 }
 
+
+
 void QSearchResultDelegate::paint_files(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	do
 	{
+		if (m_query.isEmpty())
+		{
+			return;
+		}
+		
 		if (!index.isValid())
 			break;
 
@@ -71,6 +86,32 @@ void QSearchResultDelegate::paint_files(QPainter *painter, const QStyleOptionVie
 
 		if (itemData.fileName.isEmpty())
 			break;
+
+		WCHAR szFileName[MAX_PATH] = { 0 };
+		WCHAR szQuery[MAX_PATH] = { 0 };
+		int size = m_query.length();
+		size_t pos[MAX_PATH] = { 0 };
+// 		size_t*  pos = new size_t[size];
+// 		ZeroMemory(pos, size*sizeof(size_t));
+		itemData.fileName.toWCharArray(szFileName);
+		m_query.toWCharArray(szQuery);
+
+
+		QString underlinedName(itemData.fileName);
+		
+		match_positions(szQuery, szFileName, pos);
+		
+		for (int  i = size-1;i>-1;i--)
+		{
+			if (pos[i]!=0)
+			{
+				int j = pos[ i] - 1;
+				underlinedName.insert(j, '&');
+			}
+		}
+
+
+		
 
 		painter->save();
 
@@ -90,7 +131,7 @@ void QSearchResultDelegate::paint_files(QPainter *painter, const QStyleOptionVie
 			painter->setPen(QPen(Qt::gray));
 			painter->setFont(QFont("Microsoft Yahei", 12));
 			painter->drawText(staticTextRec, QString::fromWCharArray(L"目录"));
-			painter->drawText(dirCount, QString::fromWCharArray(L"50")); //todo:动态计数
+			painter->drawText(dirCount, itemData.fileName); //todo:动态计数
 
 			QPen pen;
 			pen.setCapStyle(Qt::RoundCap);
@@ -98,7 +139,7 @@ void QSearchResultDelegate::paint_files(QPainter *painter, const QStyleOptionVie
 			pen.setColor(QColor(Qt::gray));
 			painter->setPen(pen);
 			painter->drawLine(staticTextRec.topLeft(), dirCount.topRight());
-			// 			painter->drawLine(staticTextRec.bottomLeft(), staticTextRec.bottomRight());
+	
 			break;
 		}
 
@@ -129,9 +170,12 @@ void QSearchResultDelegate::paint_files(QPainter *painter, const QStyleOptionVie
 			painter->drawImage(iconRect, itemData.icon);
 
 			painter->setPen(QPen(Qt::gray));
-			painter->setFont(QFont("Microsoft Yahei", 10));
-			//itemData.fileName = QString::fromWCharArray(L"&蛤") + itemData.fileName; //todo:中文须经处理,不然乱码..
-			painter->drawText(fileNameRect, Qt::TextShowMnemonic, '&' + itemData.fileName);  // Qt::TextShowMnemonic:下划线的处理 &+要加下划线的字母
+			QFont font("Microsoft Yahei", 10);
+			font.setLetterSpacing(QFont::PercentageSpacing,102.4);
+			painter->setFont(font);
+			auto o = painter->fontInfo();
+
+			painter->drawText(fileNameRect, Qt::TextShowMnemonic, underlinedName);  // Qt::TextShowMnemonic:下划线的处理 &+要加下划线的字母
 			painter->setFont(QFont("Microsoft Yahei", 8));
 			painter->drawText(filePathRect, Qt::TextShowMnemonic, itemData.filePath);
 

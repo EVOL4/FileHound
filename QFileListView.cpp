@@ -1,4 +1,5 @@
 #include "QFileListView.h"
+#include <QDebug>
 
 QFileListView* QFileListView::currentList = NULL;
 
@@ -10,8 +11,6 @@ QFileListView::QFileListView(QWidget *parent/*=0*/) :QListView(parent), m_hMenu(
 	shadowEffectCopy->setBlurRadius(10);
 
 	this->setGraphicsEffect(shadowEffectCopy);
-	this->setMinimumHeight(498);
-	this->setMaximumHeight(498);
 	this->setMouseTracking(true);
 	this->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);//解决多出的空白,以及自动下滚时滚到尾部的问题
 	this->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -29,9 +28,13 @@ QFileListView::QFileListView(QWidget *parent/*=0*/) :QListView(parent), m_hMenu(
 	this->setModel(m_currentModel);
 	this->setItemDelegate(m_Delegate);
 
+	qRegisterMetaType<HICON>("HICON");  //介绍一下
 	connect(this, SIGNAL(entered(const QModelIndex &)), this, SLOT(indexMouseOver(const QModelIndex &)));//当鼠标从items上划过时,将所选项设置为鼠标指向的index,
 	//这将触发委托类的paint()里的if判断,使得所选项的背景上色,让用户看见
 	connect(this, SIGNAL(pressed(const QModelIndex &)), this, SLOT(indexMousePressed(const QModelIndex &)));
+
+	m_loader = new Loader();
+	connect(m_loader, SIGNAL(imageReady(QPersistentModelIndex, HICON)), this, SLOT(on_imageReady(QPersistentModelIndex, HICON)));
 
 	QFileListView::currentList = this;
 }
@@ -41,6 +44,9 @@ QFileListView::~QFileListView()
 	DELETE_IF_NOT_NULL(m_Delegate);
 	DELETE_IF_NOT_NULL(m_filesModel);
 	DELETE_IF_NOT_NULL(m_actionsModel);
+	m_loader->terminate();
+	DELETE_IF_NOT_NULL(m_loader);
+	DELETE_IF_NOT_NULL(m_ole);
 }
 
 void QFileListView::SwitchMode(enum FH::ViewMode mode)
@@ -52,7 +58,6 @@ void QFileListView::SwitchMode(enum FH::ViewMode mode)
 	case FH::MODE_FILES:
 	{
 		m_currentModel = m_filesModel;
-
 		m_viewMode = mode;
 		break;
 	}
@@ -65,30 +70,140 @@ void QFileListView::SwitchMode(enum FH::ViewMode mode)
 	default:
 		break;
 	}
-	this->setModel(m_currentModel);
+	this->setModel(m_currentModel); //切换模式,这将自动触发界面更新
 }
 
 void QFileListView::showResults(const QString & input)
 {
 	m_currentModel->clear();
+	SwitchMode(FH::MODE_FILES);
+	m_Delegate->setQuery(input);
 
-	for (int i = 0; i < 100; i++)
+	if (m_loader->isRunning())
+	{
+		m_loader->Break();
+		m_loader->wait(10);
+	}
+
+	size_t clen = sizeof(WCHAR)*(input.length() + 1);
+
+	WCHAR* stub = (WCHAR*)malloc(clen);
+	ZeroMemory(stub, clen);
+	input.toWCharArray(stub);
+	wstring query(stub);
+
+	int _MAX_RESULT = 100;
+
+	// 	clock_t startTime, endTime;
+	// 	 startTime = clock();//计时开始
+	// 	endTime = clock();//计时结束
+	//  	long dTime = (long)(endTime - startTime) / CLOCKS_PER_SEC;
+	// 	QString time(dTime);
+	// 	qDebug() << time;
+
+	_db->Find(query, m_results, _MAX_RESULT);
+	sort(m_results.begin(), m_results.end());
+	
+
+	vector<ListViewItem>* questList = new vector<ListViewItem>;
+	if (!questList)
+	{
+		return;
+	}
+	questList->reserve(_MAX_RESULT);
+
+	QList<QStandardItem *> files;
+	QList<QStandardItem *> dirs;
+
+	for (int i = 0; i < m_results.size() && i < _MAX_RESULT; i++)
 	{
 		//QStandardItemModel::clear()将自动回收其拥有的所有item,所以我们只管申请,不管释放内存
 		QStandardItem*  singleItem = new QStandardItem;//必须申请内存,局部内存将被销毁,到QSearchResultDelegate::paint()将接收到空的参数
-		//SEARCH_RESULT_ITEM_DATA itemData = util::GetFileData(QString::fromWCharArray(L"C:\\Users\\rye\\Desktop\\Understanding_the_LFH.pdf"));
-		SEARCH_RESULT_ITEM_DATA itemData = util::GetFileData(QString::fromWCharArray(L"C:\\Users\\rye\\Desktop\\囧.txt"));
-		if (i == 50)
+
+		SEARCH_RESULT_ITEM_DATA itemData;
+
+		itemData.fileName = QString::fromWCharArray(m_results[i].Filename.data());
+		itemData.filePath = QString::fromWCharArray(m_results[i].Path.data());
+		itemData.icon = QImage(":/placeholder.png");
+
+		wstring szFullPath = m_results[i].Path + m_results[i].Filename;
+		QFileInfo fileInfo(QString::fromWCharArray(szFullPath.data()));
+
+		if (!fileInfo.exists())
 		{
-			itemData.type = TYPE_HEADER;
+			itemData.fileName = "";
+			itemData.filePath = "";
+			continue;
 		}
-		singleItem->setData(QVariant::fromValue(itemData), Qt::UserRole + 1);
-		m_currentModel->appendRow(singleItem);
+		if (fileInfo.isDir()) //若为
+		{
+			itemData.type = TYPE_DIRECTORY;
+			singleItem->setData(QVariant::fromValue(itemData), Qt::UserRole + 1);
+			dirs.append(singleItem);
+		}
+		else if (fileInfo.isFile())
+		{
+			itemData.type = TYPE_FILE;
+			singleItem->setData(QVariant::fromValue(itemData), Qt::UserRole + 1);
+			files.append(singleItem);
+		}
 	}
+
 	//todo:处理搜索结果
 
+
+
+	for (auto i : files)
+	{
+		m_currentModel->appendRow(i);
+		SEARCH_RESULT_ITEM_DATA data = i->data(Qt::UserRole + 1).value<SEARCH_RESULT_ITEM_DATA>();
+
+		ListViewItem item;
+		item.isDir = false;
+		WCHAR path[MAX_PATH] = { 0 };
+		(data.filePath + data.fileName).toWCharArray(path);
+		item.fullPath = wstring(path);
+		item.index = i->index();
+		questList->push_back(item);
+	}
+
+	SEARCH_RESULT_ITEM_DATA sHeader;
+	sHeader.fileName = QString::number(dirs.size());
+	sHeader.type = TYPE_HEADER;
+	QStandardItem*  header = new QStandardItem;
+	header->setData(QVariant::fromValue(sHeader), Qt::UserRole + 1);
+	m_currentModel->appendRow(header);
+
+	for (auto i : dirs)
+	{
+		m_currentModel->appendRow(i);
+		SEARCH_RESULT_ITEM_DATA data = i->data(Qt::UserRole + 1).value<SEARCH_RESULT_ITEM_DATA>();
+
+		ListViewItem item;
+		item.isDir = true;
+		WCHAR path[MAX_PATH] = { 0 };
+		(data.filePath + data.fileName).toWCharArray(path);
+		item.fullPath = wstring(path);
+		item.index = i->index();
+		questList->push_back(item);
+	}
+
 	this->selectionModel()->setCurrentIndex(m_currentModel->index(0, 0), QItemSelectionModel::SelectCurrent);
+	int height = 55 * questList->size() + 22 + 10;
+	int size = (height > 498 ? 498 : height);
+	this->setFixedHeight(size);
 	this->show();
+
+	
+	//构建列表,让后台线程去读取文件的图标
+	if (m_loader->SubmitTaskList(questList))
+	{
+		if (m_loader->wait(10))
+		{
+			m_loader->blockSignals(false);
+			m_loader->start(QThread::NormalPriority);
+		}
+	}
 }
 
 void QFileListView::keyEventForward(QKeyEvent *event)
@@ -165,6 +280,8 @@ void QFileListView::Expand()
 
 void QFileListView::Collapse()
 {
+	m_loader->blockSignals(true);
+
 	if (m_depth > 0)
 	{
 		m_depth--;
@@ -212,7 +329,12 @@ void QFileListView::clearResults()
 	{
 	case FH::MODE_FILES:
 	{
+		if (m_loader->isRunning())
+		{
+			m_loader->blockSignals(true);
+		}
 		m_currentModel->clear();
+		m_results = vector<SearchResultFile>();
 		this->hide();
 		break;
 	}
@@ -228,6 +350,25 @@ void QFileListView::clearResults()
 
 	m_currentModel->clear(); //查看源码,发现clear()将释放model里的各个item,我们自己再调用delete的话,会出现错误
 	//todo: 两种模式的clear动作不同
+}
+
+void QFileListView::on_imageReady(QPersistentModelIndex index, HICON hIcon)
+{
+	if (!index.isValid())
+	{
+		return;
+	}
+	if (!hIcon) return;
+	
+	
+	auto i = m_filesModel->itemFromIndex(index);
+
+	if (i)
+	{
+		SEARCH_RESULT_ITEM_DATA newData = i->data(Qt::UserRole + 1).value<SEARCH_RESULT_ITEM_DATA>();
+		newData.icon = QtWin::fromHICON(hIcon).toImage();
+		i->setData(QVariant::fromValue(newData), Qt::UserRole + 1);
+	}
 }
 
 void QFileListView::indexMouseOver(const QModelIndex &index)
@@ -288,7 +429,7 @@ void QFileListView::indexMousePressed(const QModelIndex &index)
 		}
 		break;
 	}
-		
+
 	case Qt::RightButton:
 	{
 		//右键命令
@@ -400,7 +541,7 @@ bool QFileListView::QueryContextMenu(QModelIndex& index)
 	SEARCH_RESULT_ITEM_DATA itemData = index.data(Qt::UserRole + 1).value<SEARCH_RESULT_ITEM_DATA>();
 	if (itemData.filePath.isEmpty())
 		return bRet;
-	
+
 	HMENU hMenu = CreateMenu();
 
 	if (NULL == hMenu)
@@ -468,7 +609,7 @@ bool QFileListView::QueryContextMenu(QModelIndex& index)
 	return bRet;
 }
 
-void QFileListView::ParseMenu(std::vector<FH::MenuItemInfo>& actionList, HMENU hTargetMenu)
+void QFileListView::parseMenu(std::vector<FH::MenuItemInfo>& actionList, HMENU hTargetMenu)
 {
 	if (hTargetMenu == NULL)
 	{
@@ -532,7 +673,7 @@ void QFileListView::ShowMenu(HMENU hTargetMenu)
 	this->clearResults();
 
 	std::vector<FH::MenuItemInfo> actionList;
-	this->ParseMenu(actionList, hTargetMenu);
+	this->parseMenu(actionList, hTargetMenu);
 
 	int size = actionList.size();
 	if (size > 0)

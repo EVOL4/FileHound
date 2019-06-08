@@ -3,5 +3,7 @@
         <file>listview.qss</file>
         <file>magnifyingglass.ico</file>
         <file>main.png</file>
+        <file>end.png</file>
+        <file>placeholder.png</file>
     </qresource>
 </RCC>

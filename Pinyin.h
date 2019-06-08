@@ -11,3 +11,4 @@
 #define ALPHA	@"ABCDEFGHIJKLMNOPQRSTUVWXYZ#"
 
  wchar_t pinyinFirstLetter(wchar_t hanzi);
+ bool hasChinese(wchar_t* s);

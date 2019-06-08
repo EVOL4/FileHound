@@ -79,6 +79,9 @@
     <Filter Include="Core\DataBase\ChangeJrnl">
       <UniqueIdentifier>{77ea709a-d87d-4fd6-969f-b078a8ff683c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ConTextMenu">
+      <UniqueIdentifier>{1a46eb98-1a8e-46a6-b74d-8579939cc7c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="util\util.cpp">
@@ -89,9 +92,6 @@
     </ClCompile>
     <ClCompile Include="QSearchResultDelegate.cpp">
       <Filter>GUI\QSearchResultDelegate</Filter>
-    </ClCompile>
-    <ClCompile Include="QFileListView.cpp">
-      <Filter>GUI\QFileListView</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>GUI\MainWindow</Filter>
@@ -147,6 +147,12 @@
     <ClCompile Include="KC\kcutil.cpp">
       <Filter>Core\DataBase\KC</Filter>
     </ClCompile>
+    <ClCompile Include="CustomMenu.cpp">
+      <Filter>GUI\ConTextMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="QFileListView.cpp">
+      <Filter>GUI\QFileListView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="util\util.h">
@@ -172,6 +178,9 @@
     </QtMoc>
     <QtMoc Include="MyDB.h">
       <Filter>Core\DataBase</Filter>
+    </QtMoc>
+    <QtMoc Include="CustomMenu.h">
+      <Filter>GUI\ConTextMenu</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +266,9 @@
     </ClInclude>
     <ClInclude Include="KC\myconf.h">
       <Filter>Core\DataBase\KC</Filter>
+    </ClInclude>
+    <ClInclude Include="MyConfig.h">
+      <Filter>Core\DataBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

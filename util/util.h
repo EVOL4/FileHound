@@ -12,6 +12,15 @@
 #include <QMetaType>
 #include <QDebug>
 #include <QApplication>
+#include <unordered_map>
+
+#include <QTimer>
+
+#include <assert.h>
+#include "MyConfig.h"
+#include "CustomMenu.h"
+
+using namespace std;
 
 typedef void(WINAPI *pfnSWITCHTOTHISWINDOW)(HWND,BOOL);
 
@@ -31,6 +40,8 @@ typedef struct _SearchResult
 	//type file/directory/分隔计数
 }SEARCH_RESULT_ITEM_DATA;
 
+
+
 Q_DECLARE_METATYPE(SEARCH_RESULT_ITEM_DATA)
 
 
@@ -42,16 +53,20 @@ class util:public QWidget
 
 private:
 	static util* _instance;
+	static unordered_map<wstring, HICON>* _mapIcon; //存放图标的map
 	QSystemTrayIcon*  _GlobalSysTrayIcon;
+	QCustomMenu *  m_pCm;
 
 public:
 
     pfnSWITCHTOTHISWINDOW _SwitchToThisWindow;
     void sleep(int ElapsedTime);
 	void SetUpTrayIcon();
+	void HideTrayIcon();
 	static util* getInstance();
 	static SEARCH_RESULT_ITEM_DATA GetFileData(const QString path);
 	static void setStyle(const QString& qssFile,QWidget* targetWidget);
+	static HICON getIcon(const WCHAR* szPath, bool isDir);
 
 private:
     util();
@@ -59,6 +74,7 @@ private:
 
 private slots:
 	void on_activatedSysTrayIcon(QSystemTrayIcon::ActivationReason reason);  
+	void onMenuItemClicked(int ItemID);
 };
 
 

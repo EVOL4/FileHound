@@ -39,11 +39,12 @@ public:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	//重载sizeHint,用于控制item的大小
 	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
+	void setQuery(const QString& query);
 
 	void SwitchMode(enum FH::ViewMode);
 
 private:
+	QString m_query;
 	enum FH::ViewMode m_mode;
 
 	void paint_files(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;

@@ -23,7 +23,7 @@
       <x>52</x>
       <y>130</y>
       <width>571</width>
-      <height>381</height>
+      <height>12</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -33,6 +33,12 @@
     </property>
     <property name="sizeAdjustPolicy">
      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+    </property>
+    <property name="movement">
+     <enum>QListView::Free</enum>
+    </property>
+    <property name="resizeMode">
+     <enum>QListView::Adjust</enum>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBox_main">

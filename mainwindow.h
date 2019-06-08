@@ -34,6 +34,7 @@ public slots:
 private slots:
     void on_lineEdit_textChanged(const QString &input);
 	void arrowKeyTakeover(QKeyEvent *event);
+	void on_quit();
 
 signals:
 	void user_input(const QString &input);

@@ -12,8 +12,10 @@
 #include "MyDB.h"
 #include "ChangeJrnl.h"
 #include "Pinyin.h"
-util*  util::_instance = NULL;
 
+util*  util::_instance = NULL;
+unordered_map<wstring, HICON>* util::_mapIcon = NULL;
+MyDB*  _db = NULL;
 
 int main(int argc, char *argv[])
 {
@@ -67,57 +69,84 @@ int main(int argc, char *argv[])
 //  	delete c;
 // 
 // 	int x = 0;
-	wstring query(L"e");
 
-	CDriveIndex *pDI = new CDriveIndex();
-	pDI->Init('h');
+// 	vector<SearchResultFile> results;
+// 	MyDB* db = new MyDB();
+// 	db->initVolumes();
+// 	db->initJournal();
+//  	wstring query(L"e");
+// 	db->Find(query, results,-1);
+// 
+// 	delete db;
+// 
+// 	MessageBoxA(NULL, NULL, NULL, MB_OK);
 
+// 
+// 	CDriveIndex *pDI = new CDriveIndex();
+// 	pDI->Init('h');
+// 
+// 
 
-	vector<SearchResultFile> results;
-	clock_t startTime, endTime;
-	startTime = clock();//计时开始
-	pDI->Find(&query, NULL, &results, TRUE, -1);
-	endTime = clock();//计时结束
-	CHAR time[MAX_PATH] = { 0 };
-	double dTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
-	sprintf(time, "Time is %lf,count: %d", dTime, results.size());
-	vector<SearchResultFile> results2;
-	wstring query2(L"en");
-	pDI->Find(&query2, NULL, &results2, TRUE, -1);
-	for (auto i : results)
-	{
-		wcout << i.Path + i.Filename << endl;
-	}
-	MessageBoxA(NULL, time, time, MB_OK);
-	int a = 100;
-	while (a--)
-	{
-		Sleep(10);
-	}
-	delete pDI;
-
-	MessageBoxA(NULL, NULL, NULL, MB_OK);
-
+// 	clock_t startTime, endTime;
+// 	startTime = clock();//计时开始
+// 	pDI->Find(&query, NULL, &results, TRUE, 8000);
+// 	endTime = clock();//计时结束
+// 	CHAR time[MAX_PATH] = { 0 };
+// 	double dTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+// 	sprintf(time, "Time is %lf,count: %d", dTime, results.size());
+// 	vector<SearchResultFile> results2;
+// 	wstring query2(L"en");
+// 	pDI->Find(&query2, NULL, &results2, TRUE, -1);
+// 	for (auto i : results)
+// 	{
+// 		wcout << i.Path + i.Filename << endl;
+// 	}
+// 	MessageBoxA(NULL, time, time, MB_OK);
+// 	int a = 100;
+// 	while (a--)
+// 	{
+// 		Sleep(10);
+// 	}
+// 	delete pDI;
+// 
 
 	
-//     QApplication a(argc, argv);
-//     int iRet = 0;
-//     QWidget* empty_parent = new QWidget;
-//     MainWindow* w = new MainWindow(empty_parent); //将父窗口设置为empty_parent,这样在任务栏就不会出现图标
-// 
-//     //在最后一个窗口关闭的时候不关闭应用程序,可以调用 a.quit()来正确退出
-//     a.setQuitOnLastWindowClosed(false);
-//     //去掉背景和边框
-//     w->setWindowFlag(Qt::FramelessWindowHint,true);
-//     w->setWindowFlag(Qt::NoDropShadowWindowHint,true);
-//     w->setAttribute(Qt::WA_TranslucentBackground);
-//     w->show();
-//     w->move ((QApplication::desktop()->width() - w->width())/2,(QApplication::desktop()->height() - w->height())/1.4);
-// 
-//     iRet = a.exec();
-// 
-//     delete empty_parent;  //当父窗口销毁时,子窗口也会被正确销毁
-//     return iRet;
+
+    QApplication a(argc, argv);
+	int iRet = 0;
+	
+   
+	_db = new MyDB;
+	if (_db->initVolumes() != NO_ERROR)
+		return 0;
+
+	if (!_db->initJournal())
+		return 0;
+
+	util::getInstance()->SetUpTrayIcon();
+
+
+    QWidget* empty_parent = new QWidget;
+    MainWindow* w = new MainWindow(empty_parent); //将父窗口设置为empty_parent,这样在任务栏就不会出现图标
+
+    //在最后一个窗口关闭的时候不关闭应用程序,可以调用 a.quit()来正确退出
+    a.setQuitOnLastWindowClosed(false);
+    //去掉背景和边框
+    w->setWindowFlag(Qt::FramelessWindowHint,true);
+    w->setWindowFlag(Qt::NoDropShadowWindowHint,true);
+    w->setAttribute(Qt::WA_TranslucentBackground);
+    w->show();
+    w->move ((QApplication::desktop()->width() - w->width())/2,(QApplication::desktop()->height() - w->height())/1.4);
+
+	iRet = a.exec();
+
+	if (_db)
+	{
+		delete _db;
+		_db = NULL;
+	}
+    delete empty_parent;  //当父窗口销毁时,子窗口也会被正确销毁
+    return iRet;
    // qApp为指向a的全局指针
 	return 0;
 }
